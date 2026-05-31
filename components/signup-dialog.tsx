@@ -11,6 +11,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { createClient } from "@/lib/supabase/client"
+import { toast } from 'sonner'
 
 interface SignUpDialogProps {
   open: boolean
@@ -24,15 +25,13 @@ export function SignUpDialog({ open, onOpenChange, onSignInClick }: SignUpDialog
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirm, setConfirm] = useState("")
-  const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault()
-    setError("")
 
     if (password !== confirm) {
-      setError("Passwords do not match")
+      toast.error("Passwords do not match")
       return
     }
 
@@ -50,7 +49,7 @@ export function SignUpDialog({ open, onOpenChange, onSignInClick }: SignUpDialog
 
 
     if (error) {
-      setError(error.message)
+      toast.error(error.message)
       return
     }
 
@@ -126,7 +125,6 @@ export function SignUpDialog({ open, onOpenChange, onSignInClick }: SignUpDialog
             />
           </div>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
 
           <Button type="submit" className="w-full" size="lg" disabled={loading}>
             {loading ? "Creating account…" : "Create account"}
