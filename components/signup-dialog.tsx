@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -20,7 +19,6 @@ interface SignUpDialogProps {
 }
 
 export function SignUpDialog({ open, onOpenChange, onSignInClick }: SignUpDialogProps) {
-  const router = useRouter()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -50,10 +48,17 @@ export function SignUpDialog({ open, onOpenChange, onSignInClick }: SignUpDialog
 
     if (error) {
       toast.error(error.message)
+      setLoading(false)
       return
     }
 
-    router.push("/verify-email")
+    onOpenChange(false)
+    toast.success("Check your email — we've sent a verification link to activate your account")
+    setLoading(false)
+    setName("")
+    setEmail("")
+    setPassword("")
+    setConfirm("")
   }
 
   return (
