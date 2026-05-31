@@ -9,7 +9,7 @@ export default async function DashboardLayout() {
   const email = user?.email ?? ""
   const name = user?.user_metadata?.full_name ?? ""
 
-  const { data,error } = await supabase.from("Notes").select("*")
+  const { data,error } = await supabase.from("Notes").select("*").order('created_at', { ascending: false })
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
