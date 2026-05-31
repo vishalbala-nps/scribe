@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { LoginModal } from "@/components/login-modal"
 import { SignUpDialog } from "@/components/signup-dialog"
-
+import TitleBar from "@/components/titlebar"
 export default function Page() {
   const [showLogin, setShowLogin] = useState(false)
   const [showSignUp, setShowSignUp] = useState(false)
@@ -12,10 +12,9 @@ export default function Page() {
   return (
     <div className="flex min-h-svh flex-col">
       {/* Nav */}
-      <header className="flex items-center justify-between border-b border-border px-6 py-4">
-        <span className="font-semibold tracking-tight">My Notes</span>
+      <TitleBar>
         <Button onClick={() => setShowLogin(true)}>Sign in</Button>
-      </header>
+      </TitleBar>
 
       {/* Hero */}
       <main className="flex flex-1 flex-col items-center justify-center gap-6 px-4 text-center">

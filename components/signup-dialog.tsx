@@ -1,5 +1,7 @@
 "use client"
 
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -8,6 +10,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
+import { createClient } from "@/lib/supabase/client"
 
 interface SignUpDialogProps {
   open: boolean
@@ -16,6 +19,46 @@ interface SignUpDialogProps {
 }
 
 export function SignUpDialog({ open, onOpenChange, onSignInClick }: SignUpDialogProps) {
+  const router = useRouter()
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirm, setConfirm] = useState("")
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(e: { preventDefault(): void }) {
+    e.preventDefault()
+    setError("")
+
+    if (password !== confirm) {
+      setError("Passwords do not match")
+      return
+    }
+
+    setLoading(true)
+
+    const supabase = createClient()
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: name },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+
+    setLoading(false)
+
+    if (error) {
+      setError(error.message)
+      return
+    }
+
+    onOpenChange(false)
+    router.push("/verify-email")
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
@@ -24,7 +67,7 @@ export function SignUpDialog({ open, onOpenChange, onSignInClick }: SignUpDialog
           <DialogDescription>Start capturing your notes today</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div className="space-y-1">
             <label htmlFor="signup-name" className="text-sm font-medium">
               Name
@@ -33,6 +76,9 @@ export function SignUpDialog({ open, onOpenChange, onSignInClick }: SignUpDialog
               id="signup-name"
               type="text"
               placeholder="Your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -45,6 +91,9 @@ export function SignUpDialog({ open, onOpenChange, onSignInClick }: SignUpDialog
               id="signup-email"
               type="email"
               placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -57,6 +106,9 @@ export function SignUpDialog({ open, onOpenChange, onSignInClick }: SignUpDialog
               id="signup-password"
               type="password"
               placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -69,12 +121,19 @@ export function SignUpDialog({ open, onOpenChange, onSignInClick }: SignUpDialog
               id="signup-confirm"
               type="password"
               placeholder="••••••••"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              required
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
 
-          <Button className="w-full" size="lg">Create account</Button>
-        </div>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+
+          <Button type="submit" className="w-full" size="lg" disabled={loading}>
+            {loading ? "Creating account…" : "Create account"}
+          </Button>
+        </form>
 
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
