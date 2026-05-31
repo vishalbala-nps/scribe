@@ -233,7 +233,7 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
           <div className="flex items-center justify-between border-b border-border px-6 py-2">
             <div className="flex items-center gap-3">
               <p className="text-xs text-muted-foreground">
-                Last edited {new Date(selected.created_at).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}
+                {new Date(selected.created_at).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}
               </p>
               {isSaving ? (
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
