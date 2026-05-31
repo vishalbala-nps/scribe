@@ -48,14 +48,12 @@ export function SignUpDialog({ open, onOpenChange, onSignInClick }: SignUpDialog
       },
     })
 
-    setLoading(false)
 
     if (error) {
       setError(error.message)
       return
     }
 
-    onOpenChange(false)
     router.push("/verify-email")
   }
 

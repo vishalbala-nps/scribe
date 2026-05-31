@@ -83,8 +83,10 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
     const pending = pendingSaveRef.current
     if (!pending) return
     pendingSaveRef.current = null
+    const now = new Date().toISOString()
+    const patch = { ...pending.patch, created_at: now }
     setIsSaving(true)
-    const { error } = await supabase.from("Notes").update(pending.patch).eq("id", pending.id)
+    const { error } = await supabase.from("Notes").update(patch).eq("id", pending.id)
     setIsSaving(false)
     if (error) {
       toast.error("Failed to save note")
@@ -92,6 +94,9 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
       setIsDirty(true)
       return
     }
+    setNotes((prev) =>
+      prev.map((n) => (n.id === pending.id ? { ...n, created_at: now } : n))
+    )
     setIsDirty(false)
   }
 
@@ -149,7 +154,7 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
         <div className="flex-1 overflow-y-auto py-2">
           {pinned.length > 0 && (
             <>
-              <p className="px-4 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Pinned</p>
+              <p className="px-4 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Starred</p>
               {pinned.map((note) => (
                 <NoteRow
                   key={note.id}
@@ -205,7 +210,7 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
           <div className="flex items-center justify-between border-b border-border px-6 py-2">
             <div className="flex items-center gap-3">
               <p className="text-xs text-muted-foreground">
-                Last edited {new Date(selected.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                Last edited {new Date(selected.created_at).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}
               </p>
               {isSaving ? (
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
