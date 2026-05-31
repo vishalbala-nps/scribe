@@ -16,9 +16,10 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { Sun, Moon, Monitor, Loader2, Trash2 } from "lucide-react"
+import { Sun, Moon, Monitor, Loader2, Trash2, KeyRound } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
+import { ChangePasswordDialog } from "@/components/change-password-dialog"
 
 const THEMES = [
   { value: "light", label: "Light", icon: Sun },
@@ -34,6 +35,8 @@ interface SettingsDialogProps {
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { theme, setTheme } = useTheme()
   const router = useRouter()
+
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
 
@@ -43,7 +46,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     const supabase = createClient()
     const { error } = await supabase.functions.invoke("delete-account")
     if (error) {
-      console.log(error)
       toast.error("Failed to delete account")
       setIsDeleting(false)
       return
@@ -62,6 +64,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             <DialogDescription>Manage your app preferences</DialogDescription>
           </DialogHeader>
 
+          {/* Appearance */}
           <div className="space-y-2">
             <p className="text-sm font-medium">Appearance</p>
             <div className="grid grid-cols-3 gap-2">
@@ -83,6 +86,16 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             </div>
           </div>
 
+          {/* Change password */}
+          <div className="border-t border-border pt-4 space-y-3">
+            <p className="text-sm font-medium">Security</p>
+            <Button variant="outline" className="w-full gap-2" onClick={() => setChangePasswordOpen(true)}>
+              <KeyRound className="size-4" />
+              Change password
+            </Button>
+          </div>
+
+          {/* Delete account */}
           <div className="border-t border-border pt-4 space-y-3">
             <div>
               <p className="text-sm font-medium">Account</p>
@@ -121,6 +134,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ChangePasswordDialog open={changePasswordOpen} onOpenChange={setChangePasswordOpen} />
     </>
   )
 }
