@@ -88,6 +88,7 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
     setIsSaving(false)
     if (error) {
       toast.error("Failed to save note")
+      pendingSaveRef.current = pending
       setIsDirty(true)
       return
     }
