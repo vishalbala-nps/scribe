@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { Plus, Search, FileText, Trash2, Star, Loader2, Save } from "lucide-react"
 import type { Note } from "@/lib/types"
 import { createClient } from "@/lib/supabase/client"
+import { toast } from "sonner"
 
 const AUTO_SAVE_DELAY = 2000
 
@@ -43,6 +44,7 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
       if (debounceRef.current) clearTimeout(debounceRef.current)
       pendingSaveRef.current = null
       supabase.from("Notes").update(pending.patch).eq("id", pending.id)
+        .then(({ error }) => { if (error) toast.error("Failed to save note") })
     }
     setIsDirty(false)
     setIsSaving(false)
@@ -52,7 +54,10 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
     setIsAdding(true)
     const { data, error } = await supabase.from("Notes").insert({}).select().single()
     setIsAdding(false)
-    if (error || !data) return
+    if (error || !data) {
+      toast.error("Failed to create note")
+      return
+    }
     setNotes((prev) => [data, ...prev])
     setSelectedId(data.id)
   }
@@ -79,8 +84,13 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
     if (!pending) return
     pendingSaveRef.current = null
     setIsSaving(true)
-    await supabase.from("Notes").update(pending.patch).eq("id", pending.id)
+    const { error } = await supabase.from("Notes").update(pending.patch).eq("id", pending.id)
     setIsSaving(false)
+    if (error) {
+      toast.error("Failed to save note")
+      setIsDirty(true)
+      return
+    }
     setIsDirty(false)
   }
 
@@ -91,8 +101,12 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
 
   async function deleteNote(id: number) {
     setDeletingId(id)
-    await supabase.from("Notes").delete().eq("id", id)
+    const { error } = await supabase.from("Notes").delete().eq("id", id)
     setDeletingId(null)
+    if (error) {
+      toast.error("Failed to delete note")
+      return
+    }
     setNotes((prev) => prev.filter((n) => n.id !== id))
     if (selectedId === id) setSelectedId(notes.find((n) => n.id !== id)?.id ?? null)
   }
@@ -102,11 +116,15 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
     const note = notes.find((n) => n.id === id)
     if (!note) { setPinningId(null); return }
     const newPinned = !note.pinned
-    await supabase.from("Notes").update({ pinned: newPinned }).eq("id", id)
+    const { error } = await supabase.from("Notes").update({ pinned: newPinned }).eq("id", id)
+    setPinningId(null)
+    if (error) {
+      toast.error("Failed to update pin")
+      return
+    }
     setNotes((prev) =>
       prev.map((n) => (n.id === id ? { ...n, pinned: newPinned } : n))
     )
-    setPinningId(null)
   }
 
   return (
