@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,9 +18,10 @@ import { SettingsDialog } from "@/components/settings-dialog"
 interface UserMenuProps {
   email: string
   name: string
+  avatarUrl?: string
 }
 
-export function UserMenu({ email, name }: UserMenuProps) {
+export function UserMenu({ email, name, avatarUrl }: UserMenuProps) {
   const router = useRouter()
   const [settingsOpen, setSettingsOpen] = useState(false)
 
@@ -40,6 +41,7 @@ export function UserMenu({ email, name }: UserMenuProps) {
       <DropdownMenu>
         <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm outline-none hover:bg-muted transition-colors">
           <Avatar className="size-7">
+            {avatarUrl && <AvatarImage src={avatarUrl} alt={name || email} />}
             <AvatarFallback className="text-xs">{initials}</AvatarFallback>
           </Avatar>
           <span className="max-w-[140px] truncate font-medium">{name || email}</span>

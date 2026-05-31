@@ -8,13 +8,14 @@ export default async function DashboardLayout() {
   const { data: { user } } = await supabase.auth.getUser()
   const email = user?.email ?? ""
   const name = user?.user_metadata?.full_name ?? ""
+  const avatarUrl = user?.user_metadata?.avatar_url ?? ""
 
   const { data,error } = await supabase.from("Notes").select("*").order('created_at', { ascending: false })
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
       <TitleBar>
-        <UserMenu email={email} name={name} />
+        <UserMenu email={email} name={name} avatarUrl={avatarUrl} />
       </TitleBar>
       <main className="flex-1 overflow-hidden">
         <DashboardPage initialNotes={data as Array<Note>} />
