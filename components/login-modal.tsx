@@ -11,7 +11,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { createClient } from "@/lib/supabase/client"
-
+import { toast } from 'sonner'
 interface LoginModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -22,7 +22,6 @@ export function LoginModal({ open, onOpenChange, onSignUpClick }: LoginModalProp
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [loadingGoogle, setLoadingGoogle] = useState(false)
 
@@ -38,13 +37,13 @@ export function LoginModal({ open, onOpenChange, onSignUpClick }: LoginModalProp
 
   async function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault()
-    setError("")
     setLoading(true)
 
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      setError(error.message)
+      toast.error(error.message)
+      setLoading(false)
       return
     }
 
@@ -90,8 +89,6 @@ export function LoginModal({ open, onOpenChange, onSignUpClick }: LoginModalProp
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
-
-          {error && <p className="text-sm text-destructive">{error}</p>}
 
           <Button type="submit" className="w-full" size="lg" disabled={loading}>
             {loading ? "Signing in…" : "Sign in"}
