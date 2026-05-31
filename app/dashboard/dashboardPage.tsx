@@ -1,18 +1,29 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
+import NoteRow from "@/components/noterow"
 import { cn } from "@/lib/utils"
-import { Plus, Search, FileText, Trash2, Star, Loader2 } from "lucide-react"
+import { Plus, Search, FileText, Trash2, Star, Loader2, Save } from "lucide-react"
 import type { Note } from "@/lib/types"
 import { createClient } from "@/lib/supabase/client"
+
+const AUTO_SAVE_DELAY = 2000
 
 export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }) {
   const supabase = createClient()
   const [notes, setNotes] = useState(initialNotes)
-  const [selectedId, setSelectedId] = useState<number | null>(initialNotes && initialNotes.length > 0 ? initialNotes[0].id : null);
+  const [selectedId, setSelectedId] = useState<number | null>(
+    initialNotes && initialNotes.length > 0 ? initialNotes[0].id : null
+  )
   const [search, setSearch] = useState("")
   const [isAdding, setIsAdding] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [isDirty, setIsDirty] = useState(false)
+  const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [pinningId, setPinningId] = useState<number | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pendingSaveRef = useRef<{ id: number; patch: Partial<Note> } | null>(null)
 
   const selected = notes.find((n) => n.id === selectedId)
 
@@ -25,13 +36,21 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
   const pinned = filtered.filter((n) => n.pinned)
   const rest = filtered.filter((n) => !n.pinned)
 
+  // When switching notes, flush any pending save for the previous note immediately
+  useEffect(() => {
+    const pending = pendingSaveRef.current
+    if (pending) {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      pendingSaveRef.current = null
+      supabase.from("Notes").update(pending.patch).eq("id", pending.id)
+    }
+    setIsDirty(false)
+    setIsSaving(false)
+  }, [selectedId])
+
   async function addNote() {
     setIsAdding(true)
-    const { data, error } = await supabase
-      .from("Notes")
-      .insert({})
-      .select()
-      .single()
+    const { data, error } = await supabase.from("Notes").insert({}).select().single()
     setIsAdding(false)
     if (error || !data) return
     setNotes((prev) => [data, ...prev])
@@ -42,21 +61,54 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
     setNotes((prev) =>
       prev.map((n) => (n.id === selectedId ? { ...n, ...patch } : n))
     )
+    setIsDirty(true)
+
+    if (selectedId !== null) {
+      pendingSaveRef.current = {
+        id: selectedId,
+        patch: { ...(pendingSaveRef.current?.patch ?? {}), ...patch },
+      }
+    }
+
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(executeSave, AUTO_SAVE_DELAY)
   }
 
-  function deleteNote(id: number) {
+  async function executeSave() {
+    const pending = pendingSaveRef.current
+    if (!pending) return
+    pendingSaveRef.current = null
+    setIsSaving(true)
+    await supabase.from("Notes").update(pending.patch).eq("id", pending.id)
+    setIsSaving(false)
+    setIsDirty(false)
+  }
+
+  async function saveNow() {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    await executeSave()
+  }
+
+  async function deleteNote(id: number) {
+    setDeletingId(id)
+    await supabase.from("Notes").delete().eq("id", id)
+    setDeletingId(null)
     setNotes((prev) => prev.filter((n) => n.id !== id))
     if (selectedId === id) setSelectedId(notes.find((n) => n.id !== id)?.id ?? null)
   }
 
-  function togglePin(id: number) {
+  async function togglePin(id: number) {
+    setPinningId(id)
+    const note = notes.find((n) => n.id === id)
+    if (!note) { setPinningId(null); return }
+    const newPinned = !note.pinned
+    await supabase.from("Notes").update({ pinned: newPinned }).eq("id", id)
     setNotes((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, pinned: !n.pinned } : n))
+      prev.map((n) => (n.id === id ? { ...n, pinned: newPinned } : n))
     )
+    setPinningId(null)
   }
-  useEffect(() => {
-    console.log("Render on browser")
-  }, [])
+
   return (
     <div className="flex h-full">
       {/* Sidebar */}
@@ -84,7 +136,11 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
                   key={note.id}
                   note={note}
                   active={note.id === selectedId}
+                  isDeleting={deletingId === note.id}
+                  isPinning={pinningId === note.id}
                   onClick={() => setSelectedId(note.id)}
+                  onDelete={() => deleteNote(note.id)}
+                  onTogglePin={() => togglePin(note.id)}
                 />
               ))}
               <div className="mx-4 my-2 border-t border-border" />
@@ -100,7 +156,11 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
                   key={note.id}
                   note={note}
                   active={note.id === selectedId}
+                  isDeleting={deletingId === note.id}
+                  isPinning={pinningId === note.id}
                   onClick={() => setSelectedId(note.id)}
+                  onDelete={() => deleteNote(note.id)}
+                  onTogglePin={() => togglePin(note.id)}
                 />
               ))}
             </>
@@ -124,25 +184,42 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
         <div className="flex flex-1 flex-col min-w-0">
           {/* Editor toolbar */}
           <div className="flex items-center justify-between border-b border-border px-6 py-2">
-            <p className="text-xs text-muted-foreground">
-              Last edited {new Date(selected.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-            </p>
+            <div className="flex items-center gap-3">
+              <p className="text-xs text-muted-foreground">
+                Last edited {new Date(selected.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+              </p>
+              {isSaving ? (
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Loader2 className="size-3 animate-spin" />
+                  Saving…
+                </span>
+              ) : isDirty ? (
+                <Button size="sm" variant="outline" onClick={saveNow} className="h-6 px-2 text-xs gap-1">
+                  <Save className="size-3" />
+                  Save now
+                </Button>
+              ) : null}
+            </div>
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
                 size="icon-sm"
                 onClick={() => togglePin(selected.id)}
+                disabled={pinningId === selected.id}
                 className={cn(selected.pinned && "text-yellow-500")}
               >
-                <Star className={cn("size-4", selected.pinned && "fill-yellow-500")} />
+                {pinningId === selected.id
+                  ? <Loader2 className="size-4 animate-spin" />
+                  : <Star className={cn("size-4", selected.pinned && "fill-yellow-500")} />}
               </Button>
               <Button
                 variant="ghost"
                 size="icon-sm"
                 className="text-destructive hover:text-destructive"
                 onClick={() => deleteNote(selected.id)}
+                disabled={deletingId === selected.id}
               >
-                <Trash2 className="size-4" />
+                {deletingId === selected.id ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
               </Button>
             </div>
           </div>
@@ -176,30 +253,5 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
         </div>
       )}
     </div>
-  )
-}
-
-function NoteRow({
-  note,
-  active,
-  onClick,
-}: {
-  note: Note
-  active: boolean
-  onClick: () => void
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "w-full px-4 py-2.5 text-left transition-colors hover:bg-muted/60",
-        active && "bg-muted"
-      )}
-    >
-      <p className="truncate text-sm font-medium">{note.title || "Untitled"}</p>
-      <p className="truncate text-xs text-muted-foreground mt-0.5">
-        {new Date(note.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} · {note.content || "No content"}
-      </p>
-    </button>
   )
 }
