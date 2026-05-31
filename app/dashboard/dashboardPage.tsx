@@ -30,6 +30,11 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
 
   const selected = notes.find((n) => n.id === selectedId)
 
+  function selectNote(id: number) {
+    setSelectedId(id)
+    if (window.innerWidth < 768 && sidebarOpen) toggleSidebar()
+  }
+
   const filtered = notes.filter(
     (n) =>
       n.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -180,7 +185,7 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
                   active={note.id === selectedId}
                   isDeleting={deletingId === note.id}
                   isPinning={pinningId === note.id}
-                  onClick={() => setSelectedId(note.id)}
+                  onClick={() => selectNote(note.id)}
                   onDelete={() => deleteNote(note.id)}
                   onTogglePin={() => togglePin(note.id)}
                 />
@@ -200,7 +205,7 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
                   active={note.id === selectedId}
                   isDeleting={deletingId === note.id}
                   isPinning={pinningId === note.id}
-                  onClick={() => setSelectedId(note.id)}
+                  onClick={() => selectNote(note.id)}
                   onDelete={() => deleteNote(note.id)}
                   onTogglePin={() => togglePin(note.id)}
                 />
