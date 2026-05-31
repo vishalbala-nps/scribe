@@ -51,10 +51,6 @@ export function UserMenu({ email, name }: UserMenuProps) {
             <p className="text-xs text-muted-foreground truncate">{email}</p>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <User />
-            Profile
-          </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setSettingsOpen(true)}>
             <Settings />
             Settings
