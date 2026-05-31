@@ -1,4 +1,4 @@
-# My Notes
+# Scribe
 
 A simple, fast notes app to capture ideas and stay organized — from any device. Sign in with email/password or Google, write notes that auto-save as you type, and star the ones that matter most.
 

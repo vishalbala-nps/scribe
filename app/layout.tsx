@@ -1,9 +1,15 @@
 import { Geist, Geist_Mono, Inter } from "next/font/google"
+import type { Metadata } from "next"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 import { Toaster } from "sonner"
+
+export const metadata: Metadata = {
+  title: "Scribe",
+  description: "A simple, fast notes app to capture ideas and stay organized — from any device.",
+}
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'})
 

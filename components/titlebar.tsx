@@ -20,7 +20,7 @@ export default function TitleBar({ children, showSidebarToggle }: TitleBarProps)
             <PanelLeft className="size-4" />
           </Button>
         )}
-        <span className="font-semibold tracking-tight px-2">My Notes</span>
+        <span className="font-semibold tracking-tight px-2">Scribe</span>
       </div>
       {children}
     </header>
