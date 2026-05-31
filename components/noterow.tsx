@@ -6,7 +6,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
 import { Note } from '@/lib/types'
-import { Trash2, Loader2, Pin, PinOff } from "lucide-react"
+import { Trash2, Loader2, Star } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export default function NoteRow({
@@ -57,8 +57,8 @@ export default function NoteRow({
         >
           {isPinning
             ? <Loader2 className="size-4 animate-spin" />
-            : note.pinned ? <PinOff className="size-4" /> : <Pin className="size-4" />}
-          {note.pinned ? "Unpin" : "Pin"}
+            : <Star className={cn("size-4", note.pinned && "fill-yellow-500 text-yellow-500")} />}
+          {note.pinned ? "Unstar" : "Star"}
         </ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem
