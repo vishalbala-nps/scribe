@@ -8,6 +8,7 @@ import { Plus, Search, FileText, Trash2, Star, Loader2, Save } from "lucide-reac
 import type { Note } from "@/lib/types"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
+import { useSidebar } from "@/lib/sidebar-context"
 
 const AUTO_SAVE_DELAY = 2000
 
@@ -23,6 +24,7 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
   const [isDirty, setIsDirty] = useState(false)
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [pinningId, setPinningId] = useState<number | null>(null)
+  const { open: sidebarOpen, toggle: toggleSidebar } = useSidebar()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pendingSaveRef = useRef<{ id: number; patch: Partial<Note> } | null>(null)
 
@@ -135,8 +137,22 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
 
   return (
     <div className="flex h-full">
+      {/* Mobile backdrop */}
+      {sidebarOpen && (
+        <div
+          className="absolute inset-0 z-40 bg-black/30 md:hidden"
+          onClick={toggleSidebar}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="flex w-64 flex-col border-r border-border bg-muted/30 shrink-0">
+      <aside className={cn(
+        "flex flex-col border-r border-border bg-background md:bg-muted/30 shrink-0",
+        "absolute inset-y-0 left-0 z-50 w-64",
+        "md:relative md:inset-auto md:z-auto",
+        sidebarOpen ? "translate-x-0" : "-translate-x-full md:hidden",
+        "transition-transform duration-200 ease-in-out md:transition-none",
+      )}>
         {/* Search */}
         <div className="p-3 border-b border-border">
           <div className="flex items-center gap-2 rounded-md border border-input bg-background px-3 py-1.5 text-sm text-muted-foreground">
