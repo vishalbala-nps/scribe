@@ -148,10 +148,12 @@ export default function DashboardPage({ initialNotes }: { initialNotes: Note[] }
       {/* Sidebar */}
       <aside className={cn(
         "flex flex-col border-r border-border bg-background md:bg-muted/30 shrink-0",
-        "absolute inset-y-0 left-0 z-50 w-64",
+        "absolute inset-y-0 left-0 z-50 w-64 md:overflow-hidden",
         "md:relative md:inset-auto md:z-auto",
-        sidebarOpen ? "translate-x-0" : "-translate-x-full md:hidden",
-        "transition-transform duration-200 ease-in-out md:transition-none",
+        "transition-transform md:transition-[width] duration-200 ease-in-out",
+        sidebarOpen
+          ? "translate-x-0 md:w-64"
+          : "-translate-x-full md:translate-x-0 md:w-0 md:border-r-0",
       )}>
         {/* Search */}
         <div className="p-3 border-b border-border">
