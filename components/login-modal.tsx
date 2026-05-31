@@ -11,7 +11,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { createClient } from "@/lib/supabase/client"
-import { toast } from 'sonner'
+import { toast } from "sonner"
+import { ForgotPasswordDialog } from "@/components/forgot-password-dialog"
 interface LoginModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -24,6 +25,7 @@ export function LoginModal({ open, onOpenChange, onSignUpClick }: LoginModalProp
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [loadingGoogle, setLoadingGoogle] = useState(false)
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false)
 
   async function handleGoogleSignIn() {
     setLoadingGoogle(true)
@@ -52,6 +54,7 @@ export function LoginModal({ open, onOpenChange, onSignUpClick }: LoginModalProp
   }
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
@@ -76,9 +79,7 @@ export function LoginModal({ open, onOpenChange, onSignUpClick }: LoginModalProp
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="password" className="text-sm font-medium">
-              Password
-            </label>
+            <label htmlFor="password" className="text-sm font-medium">Password</label>
             <input
               id="password"
               type="password"
@@ -88,6 +89,13 @@ export function LoginModal({ open, onOpenChange, onSignUpClick }: LoginModalProp
               required
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
+            <button
+              type="button"
+              onClick={() => setForgotPasswordOpen(true)}
+              className="text-xs text-muted-foreground underline-offset-4 hover:underline"
+            >
+              Forgot password?
+            </button>
           </div>
 
           <Button type="submit" className="w-full" size="lg" disabled={loading}>
@@ -125,5 +133,8 @@ export function LoginModal({ open, onOpenChange, onSignUpClick }: LoginModalProp
         </p>
       </DialogContent>
     </Dialog>
+
+    <ForgotPasswordDialog open={forgotPasswordOpen} onOpenChange={setForgotPasswordOpen} />
+    </>
   )
 }
