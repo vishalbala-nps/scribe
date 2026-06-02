@@ -13,10 +13,10 @@ const SidebarContext = createContext<SidebarContextValue>({
 })
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    if (window.innerWidth < 768) setOpen(false)
+    if (window.innerWidth >= 768) setOpen(true)
   }, [])
 
   return (

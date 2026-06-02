@@ -1,9 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import TitleBar from "@/components/titlebar"
 import { UserMenu } from "@/components/user-menu"
-import DashboardPage from "./dashboardPage"
+import NewDashboard from "./newDashboard"
 import { SidebarProvider } from "@/lib/sidebar-context"
-import { Note } from "@/lib/types"
+import getNotes from "@/lib/getNotes"
 
 export default async function DashboardLayout() {
   const supabase = await createClient()
@@ -12,7 +12,7 @@ export default async function DashboardLayout() {
   const name = user?.user_metadata?.full_name ?? ""
   const avatarUrl = user?.user_metadata?.avatar_url ?? ""
 
-  const { data } = await supabase.from("Notes").select("*").order('created_at', { ascending: false })
+  const { notes, folders } = await getNotes()
 
   return (
     <SidebarProvider>
@@ -21,7 +21,7 @@ export default async function DashboardLayout() {
           <UserMenu email={email} name={name} avatarUrl={avatarUrl} />
         </TitleBar>
         <main className="relative flex-1 overflow-hidden">
-          <DashboardPage initialNotes={data as Array<Note>} />
+          <NewDashboard initialNotes={notes} initialFolders={folders} />
         </main>
       </div>
     </SidebarProvider>
