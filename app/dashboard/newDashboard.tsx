@@ -109,7 +109,9 @@ export default function NewDashboard({
     return matchesSearch && matchesFolder
   })
 
-  const grouped = useMemo(() => groupNotesByDate(filtered), [filtered])
+  const pinnedNotes = filtered.filter(n => n.pinned)
+  const unpinnedNotes = filtered.filter(n => !n.pinned)
+  const grouped = useMemo(() => groupNotesByDate(unpinnedNotes), [unpinnedNotes])
 
   const listTitle = selectedFolderId === null
     ? "All Notes"
@@ -369,11 +371,39 @@ export default function NewDashboard({
 
         {/* Note list */}
         <div className="flex-1 overflow-y-auto">
-          {grouped.length === 0 && (
+          {filtered.length === 0 && (
             <p className="px-4 py-8 text-center text-xs text-muted-foreground">
               {search ? "No notes match your search" : "No notes yet"}
             </p>
           )}
+
+          {/* Pinned section */}
+          {pinnedNotes.length > 0 && (
+            <div>
+              <p className="px-4 pt-3 pb-1 text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
+                <Star className="size-3 fill-yellow-500 text-yellow-500" />
+                Pinned
+              </p>
+              {pinnedNotes.map(note => (
+                <NoteListItem
+                  key={note.id}
+                  note={note}
+                  active={note.id === selectedId}
+                  isDeleting={deletingId === note.id}
+                  isPinning={pinningId === note.id}
+                  folderName={
+                    selectedFolderId === null && note.folder !== null
+                      ? (folderMap.get(note.folder) ?? null)
+                      : null
+                  }
+                  onClick={() => selectNote(note.id)}
+                  onDelete={() => deleteNote(note.id)}
+                  onTogglePin={() => togglePin(note.id)}
+                />
+              ))}
+            </div>
+          )}
+
           {grouped.map(group => (
             <div key={group.label}>
               <p className="px-4 pt-3 pb-1 text-[11px] font-semibold text-muted-foreground">
