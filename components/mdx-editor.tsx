@@ -25,18 +25,62 @@ import {
   CreateLink,
   InsertTable,
   InsertImage,
+  InsertCodeBlock,
   DiffSourceToggleWrapper,
   Separator,
   type MDXEditorMethods,
-  InsertCodeBlock
 } from "@mdxeditor/editor"
-import { forwardRef } from "react"
+import { forwardRef, useEffect, useState } from "react"
 
 interface Props {
   title: string
   markdown: string
   onChangeTitle: (value: string) => void
   onChange: (value: string) => void
+}
+
+const formattingButtons = (
+  <>
+    <UndoRedo />
+    <Separator />
+    <BlockTypeSelect />
+    <Separator />
+    <BoldItalicUnderlineToggles />
+    <StrikeThroughSupSubToggles />
+    <Separator />
+    <CodeToggle />
+    <InsertCodeBlock />
+    <Separator />
+    <ListsToggle />
+    <Separator />
+    <CreateLink />
+    <Separator />
+    <InsertImage />
+    <InsertTable />
+  </>
+)
+
+function ToolbarRow() {
+  const [isDesktop, setIsDesktop] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 768)
+    check()
+    window.addEventListener("resize", check)
+    return () => window.removeEventListener("resize", check)
+  }, [])
+
+  return (
+    <div className="flex items-center flex-wrap px-2 py-1 border-b border-border gap-0.5">
+      {isDesktop ? (
+        <DiffSourceToggleWrapper options={["rich-text", "source"]}>
+          {formattingButtons}
+        </DiffSourceToggleWrapper>
+      ) : (
+        formattingButtons
+      )}
+    </div>
+  )
 }
 
 const MdxEditor = forwardRef<MDXEditorMethods, Props>(
@@ -68,26 +112,7 @@ const MdxEditor = forwardRef<MDXEditorMethods, Props>(
                 defaultValue={title === "Untitled" ? "" : title}
                 placeholder="Untitled"
               />
-              <div className="flex items-center flex-wrap px-2 py-1 border-b border-border gap-0.5">
-                <DiffSourceToggleWrapper options={["rich-text", "source"]}>
-                  <UndoRedo />
-                  <Separator />
-                  <BlockTypeSelect />
-                  <Separator />
-                  <BoldItalicUnderlineToggles />
-                  <StrikeThroughSupSubToggles />
-                  <Separator />
-                  <CodeToggle />
-                  <InsertCodeBlock />
-                  <Separator />
-                  <ListsToggle />
-                  <Separator />
-                  <CreateLink />
-                  <Separator />
-                  <InsertImage />
-                  <InsertTable />
-                </DiffSourceToggleWrapper>
-              </div>
+              <ToolbarRow />
             </div>
           ),
         }),
