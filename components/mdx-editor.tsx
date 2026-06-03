@@ -8,12 +8,22 @@ import {
   quotePlugin,
   thematicBreakPlugin,
   markdownShortcutPlugin,
+  tablePlugin,
+  linkPlugin,
+  linkDialogPlugin,
+  diffSourcePlugin,
   toolbarPlugin,
+  UndoRedo,
   BoldItalicUnderlineToggles,
+  StrikeThroughSupSubToggles,
+  CodeToggle,
   BlockTypeSelect,
   ListsToggle,
+  CreateLink,
+  InsertTable,
+  DiffSourceToggleWrapper,
   Separator,
-  type MDXEditorMethods,
+  type MDXEditorMethods
 } from "@mdxeditor/editor"
 import { forwardRef } from "react"
 
@@ -36,6 +46,10 @@ const MdxEditor = forwardRef<MDXEditorMethods, Props>(
         quotePlugin(),
         thematicBreakPlugin(),
         markdownShortcutPlugin(),
+        tablePlugin(),
+        linkPlugin(),
+        linkDialogPlugin(),
+        diffSourcePlugin(),
         toolbarPlugin({
           toolbarClassName: "flex-col !items-stretch gap-0 !p-0 !bg-background",
           toolbarContents: () => (
@@ -46,18 +60,29 @@ const MdxEditor = forwardRef<MDXEditorMethods, Props>(
                 defaultValue={title === "Untitled" ? "" : title}
                 placeholder="Untitled"
               />
-              <div className="flex items-center px-2 py-1 border-b border-border">
-                <BlockTypeSelect />
-                <Separator />
-                <BoldItalicUnderlineToggles />
-                <Separator />
-                <ListsToggle />
+              <div className="flex items-center flex-wrap px-2 py-1 border-b border-border gap-0.5">
+                <DiffSourceToggleWrapper options={["rich-text", "source"]}>
+                  <UndoRedo />
+                  <Separator />
+                  <BlockTypeSelect />
+                  <Separator />
+                  <BoldItalicUnderlineToggles />
+                  <StrikeThroughSupSubToggles />
+                  <Separator />
+                  <CodeToggle />
+                  <Separator />
+                  <ListsToggle />
+                  <Separator />
+                  <CreateLink />
+                  <Separator />
+                  <InsertTable />
+                </DiffSourceToggleWrapper>
               </div>
             </div>
           ),
         }),
       ]}
-      contentEditableClassName="prose dark:prose-invert max-w-none outline-none px-8 py-4 text-sm leading-relaxed min-h-full"
+      contentEditableClassName="prose dark:prose-invert max-w-none outline-none px-8 py-4 text-sm min-h-[70vh] [&_*]:leading-snug [&_p]:my-1.5 [&_li]:my-0.5"
     />
   )
 )
