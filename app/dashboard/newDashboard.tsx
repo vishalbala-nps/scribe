@@ -4,8 +4,8 @@ import { useState, useEffect, useRef, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import {
-  Plus, Search, FileText, Trash2, Star, Loader2, Save,
-  Folder as FolderIcon, ChevronLeft, FolderPlus,
+  Plus, Search, Trash2, Loader2, Star,
+  Folder as FolderIcon, FolderPlus,
 } from "lucide-react"
 import type { Note, Folder } from "@/lib/types"
 import { createClient } from "@/lib/supabase/client"
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/context-menu"
 import { NoteListItem } from "@/components/note-list-item"
 import { FolderTreeItem } from "@/components/folder-tree-item"
+import { NoteEditor } from "@/components/note-editor"
 
 const AUTO_SAVE_DELAY = 2000
 
@@ -446,83 +447,19 @@ export default function NewDashboard({
       </div>
 
       {/* ── Editor ─────────────────────────────────────────────────────────── */}
-      {selected ? (
-        <div className="flex flex-1 flex-col min-w-0">
-          <div className="flex items-center justify-between border-b border-border px-4 md:px-6 py-2">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className="md:hidden shrink-0"
-                onClick={() => setSelectedId(null)}
-              >
-                <ChevronLeft className="size-4" />
-              </Button>
-              <p className="text-xs text-muted-foreground">
-                {new Date(selected.created_at).toLocaleString("en-US", {
-                  month: "long", day: "numeric", year: "numeric",
-                  hour: "numeric", minute: "2-digit",
-                })}
-              </p>
-              {isSaving ? (
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Loader2 className="size-3 animate-spin" />
-                  Saving…
-                </span>
-              ) : isDirty ? (
-                <Button size="sm" variant="outline" onClick={saveNow} className="h-6 px-2 text-xs gap-1">
-                  <Save className="size-3" />
-                  Save now
-                </Button>
-              ) : null}
-            </div>
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => togglePin(selected.id)}
-                disabled={pinningId === selected.id}
-                className={cn(selected.pinned && "text-yellow-500")}
-              >
-                {pinningId === selected.id
-                  ? <Loader2 className="size-4 animate-spin" />
-                  : <Star className={cn("size-4", selected.pinned && "fill-yellow-500")} />}
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className="text-destructive hover:text-destructive"
-                onClick={() => deleteNote(selected.id)}
-                disabled={deletingId === selected.id}
-              >
-                {deletingId === selected.id
-                  ? <Loader2 className="size-4 animate-spin" />
-                  : <Trash2 className="size-4" />}
-              </Button>
-            </div>
-          </div>
-
-          <input
-            key={selected.id}
-            defaultValue={selected.title}
-            onChange={e => updateSelected({ title: e.target.value })}
-            className="border-b border-border px-8 py-4 text-2xl font-semibold bg-transparent outline-none placeholder:text-muted-foreground"
-            placeholder="Title"
-          />
-          <textarea
-            key={selected.id + "-body"}
-            defaultValue={selected.content}
-            onChange={e => updateSelected({ content: e.target.value })}
-            className="flex-1 resize-none bg-transparent px-8 py-4 text-sm leading-relaxed outline-none placeholder:text-muted-foreground"
-            placeholder="Start writing…"
-          />
-        </div>
-      ) : (
-        <div className="hidden md:flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
-          <FileText className="size-10 opacity-30" />
-          <p className="text-sm">Select a note or create a new one</p>
-        </div>
-      )}
+      <NoteEditor
+        note={selected}
+        isSaving={isSaving}
+        isDirty={isDirty}
+        isDeleting={deletingId === selected?.id}
+        isPinning={pinningId === selected?.id}
+        onBack={() => setSelectedId(null)}
+        onSaveNow={saveNow}
+        onDelete={() => selected && deleteNote(selected.id)}
+        onTogglePin={() => selected && togglePin(selected.id)}
+        onChangeTitle={value => updateSelected({ title: value })}
+        onChangeContent={value => updateSelected({ content: value })}
+      />
 
       {/* Add Folder Dialog */}
       <Dialog open={folderDialogOpen} onOpenChange={setFolderDialogOpen}>
