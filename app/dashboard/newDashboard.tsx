@@ -269,56 +269,66 @@ export default function NewDashboard({
           ? "translate-x-0 md:w-52"
           : "-translate-x-full md:translate-x-0 md:w-0 md:border-r-0",
       )}>
-        <div className="flex-1 overflow-y-auto p-2 pt-3">
-          {/* All Notes — undeletable root */}
-          <ContextMenu>
-            <ContextMenuTrigger asChild>
-              <button
-                className={cn(
-                  "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors",
-                  selectedFolderId === null
-                    ? "bg-primary/10 text-primary font-semibold"
-                    : "hover:bg-muted/60 text-foreground font-medium",
-                )}
-                onClick={() => selectFolder(null)}
-              >
-                <FolderIcon className="size-4 shrink-0" />
-                <span className="flex-1 truncate text-left">All Notes</span>
-                <span className="text-xs text-muted-foreground tabular-nums">{notes.length}</span>
-              </button>
-            </ContextMenuTrigger>
-            <ContextMenuContent className="w-44">
-              <ContextMenuItem onSelect={() => { selectFolder(null); addNote(null) }} className="gap-2">
-                <Plus className="size-4" />
-                New Note
-              </ContextMenuItem>
-              <ContextMenuSeparator />
-              <ContextMenuItem onSelect={() => openAddFolderDialog(null)} className="gap-2">
-                <FolderPlus className="size-4" />
-                New Folder
-              </ContextMenuItem>
-            </ContextMenuContent>
-          </ContextMenu>
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <div className="flex-1 overflow-y-auto p-2 pt-3">
+              {/* All Notes — undeletable root */}
+              <ContextMenu>
+                <ContextMenuTrigger asChild>
+                  <button
+                    className={cn(
+                      "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors",
+                      selectedFolderId === null
+                        ? "bg-primary/10 text-primary font-semibold"
+                        : "hover:bg-muted/60 text-foreground font-medium",
+                    )}
+                    onClick={() => selectFolder(null)}
+                  >
+                    <FolderIcon className="size-4 shrink-0" />
+                    <span className="flex-1 truncate text-left">All Notes</span>
+                    <span className="text-xs text-muted-foreground tabular-nums">{notes.length}</span>
+                  </button>
+                </ContextMenuTrigger>
+                <ContextMenuContent className="w-44">
+                  <ContextMenuItem onSelect={() => { selectFolder(null); addNote(null) }} className="gap-2">
+                    <Plus className="size-4" />
+                    New Note
+                  </ContextMenuItem>
+                  <ContextMenuSeparator />
+                  <ContextMenuItem onSelect={() => openAddFolderDialog(null)} className="gap-2">
+                    <FolderPlus className="size-4" />
+                    New Folder
+                  </ContextMenuItem>
+                </ContextMenuContent>
+              </ContextMenu>
 
-          {tree.length > 0 && (
-            <div className="mt-1">
-              {tree.map(node => (
-                <FolderTreeItem
-                  key={node.id}
-                  node={node}
-                  depth={0}
-                  selectedFolderId={selectedFolderId}
-                  deletingFolderId={deletingFolderId}
-                  noteCounts={noteCounts}
-                  onSelect={selectFolder}
-                  onAddNote={(folderId) => { selectFolder(folderId); addNote(folderId) }}
-                  onAddChild={openAddFolderDialog}
-                  onDelete={deleteFolder}
-                />
-              ))}
+              {tree.length > 0 && (
+                <div className="mt-1">
+                  {tree.map(node => (
+                    <FolderTreeItem
+                      key={node.id}
+                      node={node}
+                      depth={0}
+                      selectedFolderId={selectedFolderId}
+                      deletingFolderId={deletingFolderId}
+                      noteCounts={noteCounts}
+                      onSelect={selectFolder}
+                      onAddNote={(folderId) => { selectFolder(folderId); addNote(folderId) }}
+                      onAddChild={openAddFolderDialog}
+                      onDelete={deleteFolder}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </ContextMenuTrigger>
+          <ContextMenuContent className="w-44">
+            <ContextMenuItem onSelect={() => openAddFolderDialog(null)} className="gap-2">
+              <FolderPlus className="size-4" />
+              New Folder
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
 
         {/* New Folder */}
         <div className="flex-none p-2 border-t border-border">
@@ -371,65 +381,75 @@ export default function NewDashboard({
         </div>
 
         {/* Note list */}
-        <div className="flex-1 overflow-y-auto">
-          {filtered.length === 0 && (
-            <p className="px-4 py-8 text-center text-xs text-muted-foreground">
-              {search ? "No notes match your search" : "No notes yet"}
-            </p>
-          )}
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <div className="flex-1 overflow-y-auto">
+              {filtered.length === 0 && (
+                <p className="px-4 py-8 text-center text-xs text-muted-foreground">
+                  {search ? "No notes match your search" : "No notes yet"}
+                </p>
+              )}
 
-          {/* Pinned section */}
-          {pinnedNotes.length > 0 && (
-            <div>
-              <p className="px-4 pt-3 pb-1 text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
-                <Star className="size-3 fill-yellow-500 text-yellow-500" />
-                Pinned
-              </p>
-              {pinnedNotes.map(note => (
-                <NoteListItem
-                  key={note.id}
-                  note={note}
-                  active={note.id === selectedId}
-                  isDeleting={deletingId === note.id}
-                  isPinning={pinningId === note.id}
-                  folderName={
-                    selectedFolderId === null && note.folder !== null
-                      ? (folderMap.get(note.folder) ?? null)
-                      : null
-                  }
-                  onClick={() => selectNote(note.id)}
-                  onDelete={() => deleteNote(note.id)}
-                  onTogglePin={() => togglePin(note.id)}
-                />
+              {/* Pinned section */}
+              {pinnedNotes.length > 0 && (
+                <div>
+                  <p className="px-4 pt-3 pb-1 text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
+                    <Star className="size-3 fill-yellow-500 text-yellow-500" />
+                    Pinned
+                  </p>
+                  {pinnedNotes.map(note => (
+                    <NoteListItem
+                      key={note.id}
+                      note={note}
+                      active={note.id === selectedId}
+                      isDeleting={deletingId === note.id}
+                      isPinning={pinningId === note.id}
+                      folderName={
+                        selectedFolderId === null && note.folder !== null
+                          ? (folderMap.get(note.folder) ?? null)
+                          : null
+                      }
+                      onClick={() => selectNote(note.id)}
+                      onDelete={() => deleteNote(note.id)}
+                      onTogglePin={() => togglePin(note.id)}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {grouped.map(group => (
+                <div key={group.label}>
+                  <p className="px-4 pt-3 pb-1 text-[11px] font-semibold text-muted-foreground">
+                    {group.label}
+                  </p>
+                  {group.notes.map(note => (
+                    <NoteListItem
+                      key={note.id}
+                      note={note}
+                      active={note.id === selectedId}
+                      isDeleting={deletingId === note.id}
+                      isPinning={pinningId === note.id}
+                      folderName={
+                        selectedFolderId === null && note.folder !== null
+                          ? (folderMap.get(note.folder) ?? null)
+                          : null
+                      }
+                      onClick={() => selectNote(note.id)}
+                      onDelete={() => deleteNote(note.id)}
+                      onTogglePin={() => togglePin(note.id)}
+                    />
+                  ))}
+                </div>
               ))}
             </div>
-          )}
-
-          {grouped.map(group => (
-            <div key={group.label}>
-              <p className="px-4 pt-3 pb-1 text-[11px] font-semibold text-muted-foreground">
-                {group.label}
-              </p>
-              {group.notes.map(note => (
-                <NoteListItem
-                  key={note.id}
-                  note={note}
-                  active={note.id === selectedId}
-                  isDeleting={deletingId === note.id}
-                  isPinning={pinningId === note.id}
-                  folderName={
-                    selectedFolderId === null && note.folder !== null
-                      ? (folderMap.get(note.folder) ?? null)
-                      : null
-                  }
-                  onClick={() => selectNote(note.id)}
-                  onDelete={() => deleteNote(note.id)}
-                  onTogglePin={() => togglePin(note.id)}
-                />
-              ))}
-            </div>
-          ))}
-        </div>
+          </ContextMenuTrigger>
+          <ContextMenuContent className="w-44">
+            <ContextMenuItem onSelect={() => addNote()} className="gap-2">
+              <Plus className="size-4" />
+              New Note
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
 
         {/* New Note */}
         <div className="flex-none p-2 border-t border-border">
