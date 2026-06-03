@@ -6,6 +6,8 @@ import {
   headingsPlugin,
   listsPlugin,
   quotePlugin,
+  codeBlockPlugin,
+  codeMirrorPlugin,
   thematicBreakPlugin,
   markdownShortcutPlugin,
   tablePlugin,
@@ -23,7 +25,8 @@ import {
   InsertTable,
   DiffSourceToggleWrapper,
   Separator,
-  type MDXEditorMethods
+  type MDXEditorMethods,
+  InsertCodeBlock
 } from "@mdxeditor/editor"
 import { forwardRef } from "react"
 
@@ -50,6 +53,8 @@ const MdxEditor = forwardRef<MDXEditorMethods, Props>(
         linkPlugin(),
         linkDialogPlugin(),
         diffSourcePlugin(),
+        codeBlockPlugin({ defaultCodeBlockLanguage: "" }),
+        codeMirrorPlugin({ codeBlockLanguages: { js: "JavaScript", ts: "TypeScript", py: "Python", css: "CSS", html: "HTML", json: "JSON", "": "Plain text" } }),
         toolbarPlugin({
           toolbarClassName: "flex-col !items-stretch gap-0 !p-0 !bg-background",
           toolbarContents: () => (
@@ -70,6 +75,7 @@ const MdxEditor = forwardRef<MDXEditorMethods, Props>(
                   <StrikeThroughSupSubToggles />
                   <Separator />
                   <CodeToggle />
+                  <InsertCodeBlock />
                   <Separator />
                   <ListsToggle />
                   <Separator />
