@@ -1,9 +1,12 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { ChevronLeft, FileText, Loader2, Save, Star, Trash2 } from "lucide-react"
 import type { Note } from "@/lib/types"
+
+const MdxEditor = dynamic(() => import("@/components/mdx-editor"), { ssr: false })
 
 export function NoteEditor({
   note,
@@ -95,20 +98,14 @@ export function NoteEditor({
         </div>
       </div>
 
-      <input
-        key={note.id}
-        defaultValue={note.title}
-        onChange={e => onChangeTitle(e.target.value)}
-        className="border-b border-border px-8 py-4 text-2xl font-semibold bg-transparent outline-none placeholder:text-muted-foreground"
-        placeholder="Title"
-      />
-      <textarea
-        key={note.id + "-body"}
-        defaultValue={note.content}
-        onChange={e => onChangeContent(e.target.value)}
-        className="flex-1 resize-none bg-transparent px-8 py-4 text-sm leading-relaxed outline-none placeholder:text-muted-foreground"
-        placeholder="Start writing…"
-      />
+      <div key={note.id} className="flex-1 overflow-y-auto">
+        <MdxEditor
+          title={note.title}
+          markdown={note.content ?? ""}
+          onChangeTitle={onChangeTitle}
+          onChange={onChangeContent}
+        />
+      </div>
     </div>
   )
 }
