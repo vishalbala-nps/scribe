@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import {
   Plus, Search, Trash2, Loader2, Star,
-  Folder as FolderIcon, FolderPlus,
+  Folder as FolderIcon, FolderPlus, Upload,
 } from "lucide-react"
 import type { Note, Folder } from "@/lib/types"
 import { createClient } from "@/lib/supabase/client"
@@ -81,6 +81,7 @@ export default function NewDashboard({
   const { open: sidebarOpen, toggle: toggleSidebar } = useSidebar()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pendingSaveRef = useRef<{ id: number; patch: Partial<Note> } | null>(null)
+  const importInputRef = useRef<HTMLInputElement>(null)
 
   const tree = useMemo(() => buildFolderTree(folders), [folders])
 
@@ -195,6 +196,19 @@ export default function NewDashboard({
   async function saveNow() {
     if (debounceRef.current) clearTimeout(debounceRef.current)
     await executeSave()
+  }
+
+  async function importNote(file: File) {
+    const text = await file.text()
+    const title = file.name.replace(/\.md$/i, "")
+    const { data, error } = await supabase
+      .from("Notes")
+      .insert({ title, content: text, folder: selectedFolderId })
+      .select()
+      .single()
+    if (error || !data) { toast.error("Failed to import note"); return }
+    setNotes(prev => [data, ...prev])
+    setSelectedId(data.id)
   }
 
   async function deleteNote(id: number) {
@@ -448,8 +462,24 @@ export default function NewDashboard({
               <Plus className="size-4" />
               New Note
             </ContextMenuItem>
+            <ContextMenuSeparator />
+            <ContextMenuItem onSelect={() => importInputRef.current?.click()} className="gap-2">
+              <Upload className="size-4" />
+              Import from .md
+            </ContextMenuItem>
           </ContextMenuContent>
         </ContextMenu>
+        <input
+          ref={importInputRef}
+          type="file"
+          accept=".md"
+          className="hidden"
+          onChange={e => {
+            const file = e.target.files?.[0]
+            if (file) importNote(file)
+            e.target.value = ""
+          }}
+        />
 
         {/* New Note */}
         <div className="flex-none p-2 border-t border-border">
