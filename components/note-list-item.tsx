@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { Trash2, Star, Loader2, Folder as FolderIcon } from "lucide-react"
+import { Trash2, Star, Loader2, Folder as FolderIcon, Download } from "lucide-react"
 import type { Note } from "@/lib/types"
 import {
   ContextMenu, ContextMenuContent, ContextMenuItem,
@@ -71,6 +71,21 @@ export function NoteListItem({
             ? <Loader2 className="size-4 animate-spin" />
             : <Star className={cn("size-4", note.pinned && "fill-yellow-500 text-yellow-500")} />}
           {note.pinned ? "Unstar" : "Star"}
+        </ContextMenuItem>
+        <ContextMenuItem
+          onSelect={() => {
+            const blob = new Blob([`# ${note.title}\n\n${note.content ?? ""}`], { type: "text/markdown" })
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement("a")
+            a.href = url
+            a.download = `${note.title || "note"}.md`
+            a.click()
+            URL.revokeObjectURL(url)
+          }}
+          className="gap-2"
+        >
+          <Download className="size-4" />
+          Download as .md
         </ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem
