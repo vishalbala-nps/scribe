@@ -13,6 +13,7 @@ import {
   tablePlugin,
   linkPlugin,
   linkDialogPlugin,
+  imagePlugin,
   diffSourcePlugin,
   toolbarPlugin,
   UndoRedo,
@@ -23,6 +24,7 @@ import {
   ListsToggle,
   CreateLink,
   InsertTable,
+  InsertImage,
   DiffSourceToggleWrapper,
   Separator,
   type MDXEditorMethods,
@@ -52,6 +54,7 @@ const MdxEditor = forwardRef<MDXEditorMethods, Props>(
         tablePlugin(),
         linkPlugin(),
         linkDialogPlugin(),
+        imagePlugin(),
         diffSourcePlugin(),
         codeBlockPlugin({ defaultCodeBlockLanguage: "" }),
         codeMirrorPlugin({ codeBlockLanguages: { js: "JavaScript", ts: "TypeScript", py: "Python", css: "CSS", html: "HTML", json: "JSON", "": "Plain text" } }),
@@ -81,6 +84,7 @@ const MdxEditor = forwardRef<MDXEditorMethods, Props>(
                   <Separator />
                   <CreateLink />
                   <Separator />
+                  <InsertImage />
                   <InsertTable />
                 </DiffSourceToggleWrapper>
               </div>
