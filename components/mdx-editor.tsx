@@ -70,6 +70,15 @@ function ToolbarRow() {
     return () => window.removeEventListener("resize", check)
   }, [])
 
+  useEffect(() => {
+    const html = document.documentElement
+    const sync = () => document.body.classList.toggle("dark-theme", html.classList.contains("dark"))
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(html, { attributeFilter: ["class"] })
+    return () => { observer.disconnect(); document.body.classList.remove("dark-theme") }
+  }, [])
+
   return (
     <div className="flex items-center flex-wrap px-2 py-1 border-b border-border gap-0.5">
       {isDesktop ? (
