@@ -26,6 +26,7 @@
     --color-border: var(--border);
     --color-destructive: var(--destructive);
     --color-accent-foreground: var(--accent-foreground);
+    
     --color-accent: var(--accent);
     --color-muted-foreground: var(--muted-foreground);
     --color-muted: var(--muted);
@@ -130,4 +131,40 @@
   html {
     @apply font-sans;
     }
+}
+
+/* MDXEditor dark mode: --basePageBg is hardcoded to white in the editor root,
+   override it so dropdowns/selects/dialogs render with dark backgrounds */
+.dark [class*="_editorRoot_"] {
+  --basePageBg: #111113;
+  --baseTextContrast: #edeef0;
+  --baseText: #b0b4ba;
+}
+
+/* MDXEditor dark mode: button text uses --baseBase which becomes near-black in dark mode */
+.dark [class*="_primaryButton_"],
+.dark [class*="_secondaryButton_"] {
+  color: #edeef0;
+}
+
+/* MDXEditor source mode: CodeMirror injects styles dynamically so !important is needed
+   to guarantee our background wins over basicDark's generated stylesheet */
+.dark .mdxeditor .cm-editor {
+  background-color: var(--background) !important;
+}
+.dark .mdxeditor .cm-scroller {
+  background-color: var(--background) !important;
+}
+.dark .mdxeditor .cm-gutters {
+  background-color: var(--background) !important;
+  border-right: 1px solid #363a3f !important;
+  color: #5a6169 !important;
+}
+.dark .mdxeditor .cm-activeLineGutter,
+.dark .mdxeditor .cm-activeLine {
+  background-color: transparent !important;
+}
+.dark .mdxeditor .cm-content,
+.dark .mdxeditor .cm-line {
+  color: #edeef0 !important;
 }

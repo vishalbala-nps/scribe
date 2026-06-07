@@ -31,6 +31,8 @@ import {
   type MDXEditorMethods,
 } from "@mdxeditor/editor"
 import { forwardRef, useEffect, useState } from "react"
+import { useTheme } from "next-themes"
+import { basicDark } from "cm6-theme-basic-dark";
 
 interface Props {
   title: string
@@ -93,42 +95,49 @@ function ToolbarRow() {
 }
 
 const MdxEditor = forwardRef<MDXEditorMethods, Props>(
-  ({ title, markdown, onChangeTitle, onChange }, ref) => (
-    <MDXEditor
-      ref={ref}
-      markdown={markdown}
-      onChange={onChange}
-      plugins={[
-        headingsPlugin(),
-        listsPlugin(),
-        quotePlugin(),
-        thematicBreakPlugin(),
-        markdownShortcutPlugin(),
-        tablePlugin(),
-        linkPlugin(),
-        linkDialogPlugin(),
-        imagePlugin(),
-        diffSourcePlugin(),
-        codeBlockPlugin({ defaultCodeBlockLanguage: "" }),
-        codeMirrorPlugin({ codeBlockLanguages: { js: "JavaScript", ts: "TypeScript", py: "Python", css: "CSS", html: "HTML", json: "JSON", "": "Plain text" } }),
-        toolbarPlugin({
-          toolbarClassName: "flex-col !items-stretch gap-0 !p-0 !bg-background",
-          toolbarContents: () => (
-            <div className="w-full">
-              <input
-                onChange={e => onChangeTitle(e.target.value)}
-                className="px-8 py-4 text-2xl font-semibold bg-transparent outline-none border-b border-border placeholder:text-muted-foreground w-full"
-                defaultValue={title === "Untitled" ? "" : title}
-                placeholder="Untitled"
-              />
-              <ToolbarRow />
-            </div>
-          ),
-        }),
-      ]}
-      contentEditableClassName="prose dark:prose-invert max-w-none outline-none px-8 py-4 text-sm min-h-[70vh] [&_*]:leading-snug [&_p]:my-1.5 [&_li]:my-0.5"
-    />
-  )
+  ({ title, markdown, onChangeTitle, onChange }, ref) => {
+    const { resolvedTheme } = useTheme()
+    const isDark = resolvedTheme === "dark"
+
+    return (
+      <MDXEditor
+        key={isDark ? "dark" : "light"}
+        ref={ref}
+        markdown={markdown}
+        onChange={onChange}
+        className={isDark ? "dark-theme" : "light-theme"}
+        plugins={[
+          headingsPlugin(),
+          listsPlugin(),
+          quotePlugin(),
+          thematicBreakPlugin(),
+          markdownShortcutPlugin(),
+          tablePlugin(),
+          linkPlugin(),
+          linkDialogPlugin(),
+          imagePlugin(),
+          diffSourcePlugin(),
+          codeBlockPlugin({ defaultCodeBlockLanguage: "" }),
+          codeMirrorPlugin({ codeMirrorExtensions: isDark ? [basicDark] : [], codeBlockLanguages: { js: "JavaScript", ts: "TypeScript", py: "Python", css: "CSS", html: "HTML", json: "JSON", "": "Plain text" } }),
+          toolbarPlugin({
+            toolbarClassName: "flex-col !items-stretch gap-0 !p-0 !bg-background",
+            toolbarContents: () => (
+              <div className="w-full">
+                <input
+                  onChange={e => onChangeTitle(e.target.value)}
+                  className="px-8 py-4 text-2xl font-semibold bg-transparent outline-none border-b border-border placeholder:text-muted-foreground w-full"
+                  defaultValue={title === "Untitled" ? "" : title}
+                  placeholder="Untitled"
+                />
+                <ToolbarRow />
+              </div>
+            ),
+          }),
+        ]}
+        contentEditableClassName="prose dark:prose-invert max-w-none outline-none px-8 py-4 text-sm min-h-[70vh] [&_*]:leading-snug [&_p]:my-1.5 [&_li]:my-0.5"
+      />
+    )
+  }
 )
 MdxEditor.displayName = "MdxEditor"
 
