@@ -1,33 +1,48 @@
 # Scribe
 
-A simple, fast notes app to capture ideas and stay organized — from any device. Sign in with email/password or Google, write notes that auto-save as you type, and star the ones that matter most.
+A simple, fast notes app to capture ideas and stay organized — from any device. Sign in with email/password or Google, write rich-text notes that auto-save as you type, organize them into folders, and star the ones that matter most.
 
-**Live demo:** [mynotesapp-flax.vercel.app](https://scribe-vishalb.vercel.app)
+**Live demo:** [scribe-vishalb.vercel.app](https://scribe-vishalb.vercel.app)
+
+## Features
+
+* **Rich Markdown Editing** — Fully featured Markdown editor supporting bold, italic, underline, strikethrough, headings, blockquotes, lists, tables, and inline code.
+* **Code blocks** — Syntax-highlighted code blocks with language selection (JS, TS, Python, CSS, HTML, JSON)
+* **Images** — Embed images via URL or upload directly into a note
+* **Links** — Insert and edit hyperlinks inline
+* **Auto-save** — Notes save automatically as you type
+* **Download notes** — Export any note as a `.md` file
+* **Import from Markdown** — Import `.md` files as new notes
+* **Folders** — Organize notes into nested folders with right-click context menus
+* **Pinned notes** — Star notes to pin them to the top of the list
 
 ## Tech Stack
 
-- [Next.js 16](https://nextjs.org/) (App Router)
-- [Supabase](https://supabase.com/) — Auth + Postgres database
-- [Tailwind CSS v4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
+* [Next.js 15](https://nextjs.org/) (App Router)
+* [Supabase](https://supabase.com/) — Auth + Postgres database
+* [Tailwind CSS v4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
+* [MDXEditor](https://mdxeditor.dev/) — Rich text / Markdown editor
+* [CodeMirror 6](https://codemirror.net/) — Source mode with `cm6-theme-basic-dark`
+* [next-themes](https://github.com/pacocoursey/next-themes) — Dark mode
 
 ## Local Setup
 
 ### Prerequisites
 
-- Node.js 18+
-- A [Supabase](https://supabase.com/) project
+* Node.js 18+
+* A [Supabase](https://supabase.com/) project
 
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/your-username/myNotesApp.git
+git clone https://github.com/vishalbala-nps/myNotesApp.git
 cd myNotesApp
 npm install
 ```
 
 ### 2. Set up environment variables
 
-Copy the `.env.local` file to `.env` and fill in the Supabase URL and API Key 
+Copy the `.env.local` file to `.env` and fill in the Supabase URL and API Key.
 
 You can find these in your Supabase project under **Settings → API**.
 
@@ -42,10 +57,11 @@ supabase db push
 
 In your Supabase project → **Authentication → URL Configuration**:
 
-- Set **Site URL** to `http://localhost:3000`
-- Add `http://localhost:3000/auth/callback` to **Redirect URLs**
+* Set **Site URL** to `http://localhost:3000`
+* Add `http://localhost:3000/auth/callback` to **Redirect URLs**
 
 To enable **Google OAuth**:
+
 1. Create OAuth credentials in [Google Cloud Console](https://console.cloud.google.com/)
 2. In Supabase → **Authentication → Providers → Google**, enter your Client ID and Secret
 
@@ -66,8 +82,8 @@ Open [http://localhost:3000](http://localhost:3000).
 
 After the first deploy, update your Supabase Auth settings:
 
-- **Site URL** → your Vercel URL (e.g. `https://your-app.vercel.app`)
-- **Redirect URLs** → add `https://your-app.vercel.app/auth/callback`
+* **Site URL** → your Vercel URL (e.g. [`https://your-app.vercel.app`)](https://your-app.vercel.app\))
+* **Redirect URLs** → add [`https://your-app.vercel.app/auth/callback`](https://your-app.vercel.app/auth/callback)
 
 ## Scripts
 

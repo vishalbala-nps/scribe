@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { LoginModal } from "@/components/login-modal"
 import { SignUpDialog } from "@/components/signup-dialog"
 import TitleBar from "@/components/titlebar"
-import { Save, Star, Search, Zap } from "lucide-react"
+import { Save, Star, Code2, Image, Folder, FileDown, Moon } from "lucide-react"
 
 const features = [
   {
@@ -15,14 +15,29 @@ const features = [
   },
   {
     icon: Star,
-    title: "Star what matters",
-    description: "Pin important notes to the top so they're always within reach.",
+    title: "Pin what matters",
+    description: "Star important notes to keep them pinned at the top of your list.",
   },
   {
-    icon: Zap,
-    title: "Fast and minimal",
-    description: "No clutter, no distractions. Just you and your notes.",
+    icon: Folder,
+    title: "Organize with folders",
+    description: "Group notes into nested folders. Right-click for quick actions on any note or folder.",
   },
+  {
+    icon: Code2,
+    title: "Rich text & code",
+    description: "Full markdown editor with headings, lists, tables, blockquotes, and syntax-highlighted code blocks.",
+  },
+  {
+    icon: Image,
+    title: "Images & links",
+    description: "Embed images via URL or upload, and insert inline hyperlinks — all from the toolbar.",
+  },
+  {
+    icon: FileDown,
+    title: "Download & import",
+    description: "Export any note as a .md file or import existing Markdown files as new notes.",
+  }
 ]
 
 export default function Page() {
@@ -67,7 +82,7 @@ export default function Page() {
             <p className="text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-10">
               Everything you need, nothing you don&apos;t
             </p>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {features.map(({ icon: Icon, title, description }) => (
                 <div key={title} className="rounded-xl border border-border bg-background p-5 space-y-3">
                   <div className="flex size-9 items-center justify-center rounded-lg bg-muted">
@@ -85,7 +100,15 @@ export default function Page() {
       </main>
 
       <footer className="border-t border-border px-6 py-4 text-center text-xs text-muted-foreground">
-        &copy; {new Date().getFullYear()} Scribe
+        Built by{" "}
+        <a
+          href="https://github.com/vishalbala-nps"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline underline-offset-2 hover:text-foreground transition-colors"
+        >
+          Vishal Balasubramanian
+        </a>
       </footer>
 
       <LoginModal
