@@ -16,6 +16,11 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog"
 import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import {
   ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger,
 } from "@/components/ui/context-menu"
 import { NoteListItem } from "@/components/note-list-item"
@@ -71,6 +76,8 @@ export default function NewDashboard({
   const [isSaving, setIsSaving] = useState(false)
   const [isDirty, setIsDirty] = useState(false)
   const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
+  const [folderDeleteConfirmId, setFolderDeleteConfirmId] = useState<number | null>(null)
   const [pinningId, setPinningId] = useState<number | null>(null)
   const [deletingFolderId, setDeletingFolderId] = useState<number | null>(null)
   const [folderDialogOpen, setFolderDialogOpen] = useState(false)
@@ -211,7 +218,12 @@ export default function NewDashboard({
     setSelectedId(data.id)
   }
 
+  async function confirmDeleteNote(id: number) {
+    setDeleteConfirmId(id)
+  }
+
   async function deleteNote(id: number) {
+    setDeleteConfirmId(null)
     setDeletingId(id)
     const { error } = await supabase.from("Notes").delete().eq("id", id)
     setDeletingId(null)
@@ -350,7 +362,7 @@ export default function NewDashboard({
                   onSelect={selectFolder}
                   onAddNote={(folderId) => { selectFolder(folderId); addNote(folderId) }}
                   onAddChild={openAddFolderDialog}
-                  onDelete={deleteFolder}
+                  onDelete={setFolderDeleteConfirmId}
                 />
               ))}
             </div>
@@ -386,7 +398,7 @@ export default function NewDashboard({
                   variant="ghost"
                   size="icon-sm"
                   className="md:hidden text-muted-foreground hover:text-destructive"
-                  onClick={() => deleteFolder(selectedFolderId)}
+                  onClick={() => setFolderDeleteConfirmId(selectedFolderId)}
                   disabled={deletingFolderId === selectedFolderId}
                 >
                   {deletingFolderId === selectedFolderId
@@ -456,7 +468,7 @@ export default function NewDashboard({
                           : null
                       }
                       onClick={() => selectNote(note.id)}
-                      onDelete={() => deleteNote(note.id)}
+                      onDelete={() => confirmDeleteNote(note.id)}
                       onTogglePin={() => togglePin(note.id)}
                     />
                   ))}
@@ -481,7 +493,7 @@ export default function NewDashboard({
                           : null
                       }
                       onClick={() => selectNote(note.id)}
-                      onDelete={() => deleteNote(note.id)}
+                      onDelete={() => confirmDeleteNote(note.id)}
                       onTogglePin={() => togglePin(note.id)}
                     />
                   ))}
@@ -513,7 +525,7 @@ export default function NewDashboard({
         isPinning={pinningId === selected?.id}
         onBack={() => setSelectedId(null)}
         onSaveNow={saveNow}
-        onDelete={() => selected && deleteNote(selected.id)}
+        onDelete={() => selected && confirmDeleteNote(selected.id)}
         onTogglePin={() => selected && togglePin(selected.id)}
         onChangeTitle={value => updateSelected({ title: value })}
         onChangeContent={value => updateSelected({ content: value })}
@@ -545,6 +557,48 @@ export default function NewDashboard({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Note Confirmation */}
+      <AlertDialog open={deleteConfirmId !== null} onOpenChange={open => { if (!open) setDeleteConfirmId(null) }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete note?</AlertDialogTitle>
+            <AlertDialogDescription>
+              &quot;{notes.find(n => n.id === deleteConfirmId)?.title || "Untitled"}&quot; will be permanently deleted. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteConfirmId !== null && deleteNote(deleteConfirmId)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete note
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Folder Confirmation */}
+      <AlertDialog open={folderDeleteConfirmId !== null} onOpenChange={open => { if (!open) setFolderDeleteConfirmId(null) }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete folder?</AlertDialogTitle>
+            <AlertDialogDescription>
+              &quot;{folders.find(f => f.id === folderDeleteConfirmId)?.name ?? "This folder"}&quot; and all its subfolders will be permanently deleted. Notes inside will also be removed. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => folderDeleteConfirmId !== null && deleteFolder(folderDeleteConfirmId)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete folder
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
