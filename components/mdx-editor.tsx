@@ -41,7 +41,7 @@ interface Props {
   onChange: (value: string) => void
 }
 
-const formattingButtons = (
+const desktopButtons = (
   <>
     <UndoRedo />
     <Separator />
@@ -59,6 +59,20 @@ const formattingButtons = (
     <Separator />
     <InsertImage />
     <InsertTable />
+  </>
+)
+
+const mobileButtons = (
+  <>
+    <UndoRedo />
+    <Separator />
+    <BoldItalicUnderlineToggles />
+    <Separator />
+    <ListsToggle />
+    <Separator />
+    <CreateLink />
+    <Separator />
+    <InsertImage />
   </>
 )
 
@@ -85,10 +99,10 @@ function ToolbarRow() {
     <div className="flex items-center flex-wrap px-2 py-1 border-b border-border gap-0.5">
       {isDesktop ? (
         <DiffSourceToggleWrapper options={["rich-text", "source"]}>
-          {formattingButtons}
+          {desktopButtons}
         </DiffSourceToggleWrapper>
       ) : (
-        formattingButtons
+        mobileButtons
       )}
     </div>
   )
