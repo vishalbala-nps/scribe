@@ -29,7 +29,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Unauthenticated users can only access public routes
-  const isPublicRoute = pathname === "/" || pathname.startsWith("/auth") || pathname.startsWith("/verify-email")
+  const isPublicRoute = pathname === "/" || pathname.startsWith("/auth") || pathname.startsWith("/verify-email") || pathname === "/privacy" || pathname === "/terms"
 
   if (!user && !isPublicRoute) {
     return NextResponse.redirect(new URL("/", request.url))
