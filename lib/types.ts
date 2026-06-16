@@ -1,3 +1,7 @@
+export interface FolderNote {
+  [key: number]: Note[]
+}
+
 export interface Note {
   id: number
   title: string

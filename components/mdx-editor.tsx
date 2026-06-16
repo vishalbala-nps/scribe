@@ -72,7 +72,7 @@ const mobileButtons = (
     <Separator />
     <CreateLink />
     <Separator />
-    <InsertImage />
+    <InsertTable />
   </>
 )
 

@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { Sun, Moon, Monitor, Loader2, Trash2, KeyRound } from "lucide-react"
+import { Sun, Moon, Monitor, Loader2, Trash2, KeyRound, Download } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { ChangePasswordDialog } from "@/components/change-password-dialog"
@@ -92,6 +92,20 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             <Button variant="outline" className="w-full gap-2" onClick={() => setChangePasswordOpen(true)}>
               <KeyRound className="size-4" />
               Change password
+            </Button>
+          </div>
+
+          {/* Data export */}
+          <div className="border-t border-border pt-4 space-y-3">
+            <div>
+              <p className="text-sm font-medium">Data</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Download all your notes as Markdown files.</p>
+            </div>
+            <Button variant="outline" className="w-full gap-2" asChild>
+              <a href="/notes/export" download>
+                <Download className="size-4" />
+                Download all notes
+              </a>
             </Button>
           </div>
 
