@@ -16,8 +16,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog"
 import {
-  ContextMenu, ContextMenuContent, ContextMenuItem,
-  ContextMenuSeparator, ContextMenuTrigger,
+  ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger,
 } from "@/components/ui/context-menu"
 import { NoteListItem } from "@/components/note-list-item"
 import { FolderTreeItem } from "@/components/folder-tree-item"
@@ -283,76 +282,62 @@ export default function NewDashboard({
           ? "translate-x-0 md:w-52"
           : "-translate-x-full md:translate-x-0 md:w-0 md:border-r-0",
       )}>
-        <ContextMenu>
-          <ContextMenuTrigger asChild>
-            <div className="flex-1 overflow-y-auto p-2 pt-3">
-              {/* All Notes — undeletable root */}
-              <ContextMenu>
-                <ContextMenuTrigger asChild>
-                  <button
-                    className={cn(
-                      "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors",
-                      selectedFolderId === null
-                        ? "bg-primary/10 text-primary font-semibold"
-                        : "hover:bg-muted/60 text-foreground font-medium",
-                    )}
-                    onClick={() => selectFolder(null)}
-                  >
-                    <FolderIcon className="size-4 shrink-0" />
-                    <span className="flex-1 truncate text-left">All Notes</span>
-                    <span className="text-xs text-muted-foreground tabular-nums">{notes.length}</span>
-                  </button>
-                </ContextMenuTrigger>
-                <ContextMenuContent className="w-44">
-                  <ContextMenuItem onSelect={() => { selectFolder(null); addNote(null) }} className="gap-2">
-                    <Plus className="size-4" />
-                    New Note
-                  </ContextMenuItem>
-                  <ContextMenuSeparator />
-                  <ContextMenuItem onSelect={() => openAddFolderDialog(null)} className="gap-2">
-                    <FolderPlus className="size-4" />
-                    New Folder
-                  </ContextMenuItem>
-                </ContextMenuContent>
-              </ContextMenu>
+        <div className="flex-1 overflow-y-auto p-2 pt-3">
+          {/* All Notes — undeletable root */}
+          <ContextMenu>
+            <ContextMenuTrigger asChild>
+              <div
+                className={cn(
+                  "flex items-center rounded-lg transition-colors",
+                  selectedFolderId === null
+                    ? "bg-primary/10 text-primary font-semibold"
+                    : "hover:bg-muted/60 text-foreground font-medium",
+                )}
+              >
+                <button
+                  className="flex-1 flex items-center gap-2 px-3 py-2 text-sm text-left"
+                  onClick={() => selectFolder(null)}
+                >
+                  <FolderIcon className="size-4 shrink-0" />
+                  <span className="flex-1 truncate">All Notes</span>
+                </button>
+                <button
+                  className="p-2 mr-1 rounded hover:bg-muted/80 text-muted-foreground shrink-0"
+                  onClick={() => openAddFolderDialog(null)}
+                >
+                  <FolderPlus className="size-4" />
+                </button>
+              </div>
+            </ContextMenuTrigger>
+            <ContextMenuContent className="w-44">
+              <ContextMenuItem onSelect={() => openAddFolderDialog(null)} className="gap-2">
+                <FolderPlus className="size-4" />
+                New Folder
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
 
-              {tree.length > 0 && (
-                <div className="mt-1">
-                  {tree.map(node => (
-                    <FolderTreeItem
-                      key={node.id}
-                      node={node}
-                      depth={0}
-                      selectedFolderId={selectedFolderId}
-                      deletingFolderId={deletingFolderId}
-                      noteCounts={noteCounts}
-                      onSelect={selectFolder}
-                      onAddNote={(folderId) => { selectFolder(folderId); addNote(folderId) }}
-                      onAddChild={openAddFolderDialog}
-                      onDelete={deleteFolder}
-                    />
-                  ))}
-                </div>
-              )}
+          {tree.length > 0 && (
+            <div className="mt-1">
+              {tree.map(node => (
+                <FolderTreeItem
+                  key={node.id}
+                  node={node}
+                  depth={0}
+                  selectedFolderId={selectedFolderId}
+                  deletingFolderId={deletingFolderId}
+                  noteCounts={noteCounts}
+                  onSelect={selectFolder}
+                  onAddNote={(folderId) => { selectFolder(folderId); addNote(folderId) }}
+                  onAddChild={openAddFolderDialog}
+                  onDelete={deleteFolder}
+                />
+              ))}
             </div>
-          </ContextMenuTrigger>
-          <ContextMenuContent className="w-44">
-            <ContextMenuItem onSelect={() => openAddFolderDialog(null)} className="gap-2">
-              <FolderPlus className="size-4" />
-              New Folder
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenu>
-
-        {/* New Folder */}
-        <div className="flex-none p-2 border-t border-border">
-          <button
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground rounded-lg transition-colors hover:bg-muted/60"
-            onClick={() => openAddFolderDialog(null)}
-          >
-            <Plus className="size-4 shrink-0" />
-            New Folder
-          </button>
+          )}
+        </div>
+        <div className="flex-none px-4 py-2 border-t border-border text-center text-[11px] text-muted-foreground">
+          {notes.length} {notes.length === 1 ? "note" : "notes"} · {folders.length} {folders.length === 1 ? "folder" : "folders"}
         </div>
       </aside>
 
@@ -366,19 +351,42 @@ export default function NewDashboard({
         <div className="flex-none px-4 pt-4 pb-3 border-b border-border">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-semibold truncate">{listTitle}</h2>
-            {selectedFolderId !== null && (
+            <div className="flex items-center gap-1 shrink-0">
+              {selectedFolderId !== null && (
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="md:hidden text-muted-foreground hover:text-destructive"
+                  onClick={() => deleteFolder(selectedFolderId)}
+                  disabled={deletingFolderId === selectedFolderId}
+                >
+                  {deletingFolderId === selectedFolderId
+                    ? <Loader2 className="size-4 animate-spin" />
+                    : <Trash2 className="size-4" />}
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon-sm"
-                className="md:hidden shrink-0 text-muted-foreground hover:text-destructive"
-                onClick={() => deleteFolder(selectedFolderId)}
-                disabled={deletingFolderId === selectedFolderId}
+                className="text-muted-foreground hover:text-foreground"
+                onClick={() => importInputRef.current?.click()}
+                title="Import from .md"
               >
-                {deletingFolderId === selectedFolderId
-                  ? <Loader2 className="size-4 animate-spin" />
-                  : <Trash2 className="size-4" />}
+                <Upload className="size-4" />
               </Button>
-            )}
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="text-muted-foreground hover:text-foreground"
+                onClick={() => addNote()}
+                disabled={isAdding}
+                title="New Note"
+              >
+                {isAdding
+                  ? <Loader2 className="size-4 animate-spin" />
+                  : <Plus className="size-4" />}
+              </Button>
+            </div>
           </div>
           <div className="flex items-center gap-2 rounded-md bg-muted/60 px-3 py-1.5">
             <Search className="size-3.5 shrink-0 text-muted-foreground" />
@@ -389,16 +397,11 @@ export default function NewDashboard({
               className="flex-1 bg-transparent outline-none text-xs placeholder:text-muted-foreground text-foreground"
             />
           </div>
-          <p className="mt-2 text-center text-[11px] text-muted-foreground">
-            {filtered.length} {filtered.length === 1 ? "note" : "notes"}
-          </p>
         </div>
 
         {/* Note list */}
-        <ContextMenu>
-          <ContextMenuTrigger asChild>
-            <div className="flex-1 overflow-y-auto">
-              {filtered.length === 0 && (
+        <div className="flex-1 overflow-y-auto">
+          {filtered.length === 0 && (
                 <p className="px-4 py-8 text-center text-xs text-muted-foreground">
                   {search ? "No notes match your search" : "No notes yet"}
                 </p>
@@ -455,20 +458,10 @@ export default function NewDashboard({
                   ))}
                 </div>
               ))}
-            </div>
-          </ContextMenuTrigger>
-          <ContextMenuContent className="w-44">
-            <ContextMenuItem onSelect={() => addNote()} className="gap-2">
-              <Plus className="size-4" />
-              New Note
-            </ContextMenuItem>
-            <ContextMenuSeparator />
-            <ContextMenuItem onSelect={() => importInputRef.current?.click()} className="gap-2">
-              <Upload className="size-4" />
-              Import from .md
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenu>
+        </div>
+        <div className="flex-none px-4 py-2 border-t border-border text-center text-[11px] text-muted-foreground">
+          {filtered.length} {filtered.length === 1 ? "note" : "notes"}
+        </div>
         <input
           ref={importInputRef}
           type="file"
@@ -480,20 +473,6 @@ export default function NewDashboard({
             e.target.value = ""
           }}
         />
-
-        {/* New Note */}
-        <div className="flex-none p-2 border-t border-border">
-          <button
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground rounded-lg transition-colors hover:bg-muted/60 disabled:opacity-50"
-            onClick={() => addNote()}
-            disabled={isAdding}
-          >
-            {isAdding
-              ? <Loader2 className="size-4 shrink-0 animate-spin" />
-              : <Plus className="size-4 shrink-0" />}
-            New Note
-          </button>
-        </div>
       </div>
 
       {/* ── Editor ─────────────────────────────────────────────────────────── */}
