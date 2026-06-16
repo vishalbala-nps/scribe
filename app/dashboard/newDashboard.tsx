@@ -352,6 +352,15 @@ export default function NewDashboard({
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-semibold truncate">{listTitle}</h2>
             <div className="flex items-center gap-1 shrink-0">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="md:hidden text-muted-foreground hover:text-foreground"
+                onClick={() => openAddFolderDialog(selectedFolderId)}
+                title="New Folder"
+              >
+                <FolderPlus className="size-4" />
+              </Button>
               {selectedFolderId !== null && (
                 <Button
                   variant="ghost"

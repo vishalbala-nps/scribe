@@ -46,17 +46,17 @@ export function FolderTreeItem({
             )}
           >
             <button
-              className="p-1.5 shrink-0"
+              className="p-2 md:p-1.5 shrink-0"
               onClick={() => { if (node.children.length) setExpanded(e => !e) }}
             >
               <ChevronDown className={cn(
-                "size-3 text-muted-foreground transition-transform duration-150",
+                "size-3.5 md:size-3 text-muted-foreground transition-transform duration-150",
                 node.children.length === 0 && "opacity-0",
                 !expanded && "-rotate-90",
               )} />
             </button>
             <button
-              className="flex-1 flex items-center gap-1.5 py-1.5 text-left min-w-0"
+              className="flex-1 flex items-center gap-2 py-2 md:py-1.5 text-left min-w-0"
               onClick={() => onSelect(node.id)}
             >
               {isSelected && expanded
