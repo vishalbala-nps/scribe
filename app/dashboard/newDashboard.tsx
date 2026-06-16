@@ -13,7 +13,7 @@ import { toast } from "sonner"
 import { useSidebar } from "@/lib/sidebar-context"
 import { buildFolderTree } from "@/lib/tree"
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog"
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
@@ -536,6 +536,7 @@ export default function NewDashboard({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>New Folder</DialogTitle>
+            <DialogDescription>Enter a name for the new folder.</DialogDescription>
           </DialogHeader>
           <input
             value={newFolderName}
