@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { cn } from "@/lib/utils"
 import {
   Folder as FolderIcon, FolderOpen, FolderPlus,
@@ -14,6 +13,7 @@ import {
 
 export function FolderTreeItem({
   node, depth, selectedFolderId, deletingFolderId, noteCounts,
+  expandedFolderIds, onToggleExpand,
   onSelect, onAddNote, onAddChild, onDelete,
 }: {
   node: FolderNode
@@ -21,12 +21,14 @@ export function FolderTreeItem({
   selectedFolderId: number | null
   deletingFolderId: number | null
   noteCounts: Map<number, number>
+  expandedFolderIds: Set<number>
+  onToggleExpand: (id: number) => void
   onSelect: (id: number) => void
   onAddNote: (folderId: number) => void
   onAddChild: (parentId: number) => void
   onDelete: (id: number) => void
 }) {
-  const [expanded, setExpanded] = useState(false)
+  const expanded = expandedFolderIds.has(node.id)
   const isSelected = selectedFolderId === node.id
   const isDeleting = deletingFolderId === node.id
   const count = noteCounts.get(node.id) ?? 0
@@ -47,7 +49,7 @@ export function FolderTreeItem({
           >
             <button
               className="p-2 md:p-1.5 shrink-0"
-              onClick={() => { if (node.children.length) setExpanded(e => !e) }}
+              onClick={() => { if (node.children.length) onToggleExpand(node.id) }}
             >
               <ChevronDown className={cn(
                 "size-3.5 md:size-3 text-muted-foreground transition-transform duration-150",
@@ -102,6 +104,8 @@ export function FolderTreeItem({
           selectedFolderId={selectedFolderId}
           deletingFolderId={deletingFolderId}
           noteCounts={noteCounts}
+          expandedFolderIds={expandedFolderIds}
+          onToggleExpand={onToggleExpand}
           onSelect={onSelect}
           onAddNote={onAddNote}
           onAddChild={onAddChild}

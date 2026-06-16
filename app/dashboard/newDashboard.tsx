@@ -77,6 +77,7 @@ export default function NewDashboard({
   const [folderDialogParentId, setFolderDialogParentId] = useState<number | null>(null)
   const [newFolderName, setNewFolderName] = useState("")
   const [isCreatingFolder, setIsCreatingFolder] = useState(false)
+  const [expandedFolderIds, setExpandedFolderIds] = useState<Set<number>>(new Set())
   const { open: sidebarOpen, toggle: toggleSidebar } = useSidebar()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pendingSaveRef = useRef<{ id: number; patch: Partial<Note> } | null>(null)
@@ -247,6 +248,19 @@ export default function NewDashboard({
     setIsCreatingFolder(false)
     if (error || !data) { toast.error("Failed to create folder"); return }
     setFolders(prev => [...prev, data])
+    if (folderDialogParentId !== null) {
+      setExpandedFolderIds(prev => {
+        const next = new Set(prev)
+        let id: number | null = folderDialogParentId
+        while (id !== null) {
+          next.add(id)
+          const parent = folders.find(f => f.id === id)
+          id = parent?.parent_id ?? null
+        }
+        return next
+      })
+    }
+    if (window.innerWidth < 768 && !sidebarOpen) toggleSidebar()
     setFolderDialogOpen(false)
   }
 
@@ -327,6 +341,12 @@ export default function NewDashboard({
                   selectedFolderId={selectedFolderId}
                   deletingFolderId={deletingFolderId}
                   noteCounts={noteCounts}
+                  expandedFolderIds={expandedFolderIds}
+                  onToggleExpand={id => setExpandedFolderIds(prev => {
+                    const next = new Set(prev)
+                    next.has(id) ? next.delete(id) : next.add(id)
+                    return next
+                  })}
                   onSelect={selectFolder}
                   onAddNote={(folderId) => { selectFolder(folderId); addNote(folderId) }}
                   onAddChild={openAddFolderDialog}
