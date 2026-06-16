@@ -44,6 +44,7 @@ export function NoteListItem({
             "w-full px-4 py-3 text-left transition-colors border-b border-border/50",
             active ? "bg-muted" : "hover:bg-muted/40",
             busy && "opacity-60 cursor-not-allowed",
+            "data-[state=open]:bg-muted data-[state=open]:ring-1 data-[state=open]:ring-inset data-[state=open]:ring-primary/30",
           )}
         >
           <div className="flex items-baseline justify-between gap-2">
