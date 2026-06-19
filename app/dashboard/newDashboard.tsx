@@ -89,6 +89,10 @@ export default function NewDashboard({
   const [renameFolderTargetId, setRenameFolderTargetId] = useState<number | null>(null)
   const [renameFolderName, setRenameFolderName] = useState("")
   const [isRenamingFolder, setIsRenamingFolder] = useState(false)
+  const [moveNoteDialogOpen, setMoveNoteDialogOpen] = useState(false)
+  const [moveNoteTargetNoteId, setMoveNoteTargetNoteId] = useState<number | null>(null)
+  const [moveNoteSelectedFolder, setMoveNoteSelectedFolder] = useState<number | null>(null)
+  const [isMovingNote, setIsMovingNote] = useState(false)
   const { open: sidebarOpen, toggle: toggleSidebar } = useSidebar()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pendingSaveRef = useRef<{ id: number; patch: Partial<Note> } | null>(null)
@@ -278,6 +282,29 @@ export default function NewDashboard({
     }
     if (window.innerWidth < 768 && !sidebarOpen) toggleSidebar()
     setFolderDialogOpen(false)
+  }
+
+  function openMoveNoteDialog(noteId: number) {
+    const note = notes.find(n => n.id === noteId)
+    if (!note) return
+    setMoveNoteTargetNoteId(noteId)
+    setMoveNoteSelectedFolder(note.folder)
+    setMoveNoteDialogOpen(true)
+  }
+
+  async function moveNote() {
+    if (moveNoteTargetNoteId === null) return
+    setIsMovingNote(true)
+    const { error } = await supabase
+      .from("Notes")
+      .update({ folder: moveNoteSelectedFolder })
+      .eq("id", moveNoteTargetNoteId)
+    setIsMovingNote(false)
+    if (error) { toast.error("Failed to move note"); return }
+    setNotes(prev => prev.map(n =>
+      n.id === moveNoteTargetNoteId ? { ...n, folder: moveNoteSelectedFolder } : n
+    ))
+    setMoveNoteDialogOpen(false)
   }
 
   function openRenameFolderDialog(id: number) {
@@ -498,6 +525,7 @@ export default function NewDashboard({
                       onClick={() => selectNote(note.id)}
                       onDelete={() => confirmDeleteNote(note.id)}
                       onTogglePin={() => togglePin(note.id)}
+                      onMoveRequest={() => openMoveNoteDialog(note.id)}
                     />
                   ))}
                 </div>
@@ -523,6 +551,7 @@ export default function NewDashboard({
                       onClick={() => selectNote(note.id)}
                       onDelete={() => confirmDeleteNote(note.id)}
                       onTogglePin={() => togglePin(note.id)}
+                      onMoveRequest={() => openMoveNoteDialog(note.id)}
                     />
                   ))}
                 </div>
@@ -611,6 +640,48 @@ export default function NewDashboard({
             >
               {isRenamingFolder && <Loader2 className="size-3.5 animate-spin" />}
               Rename
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Move Note Dialog */}
+      <Dialog open={moveNoteDialogOpen} onOpenChange={setMoveNoteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Move note</DialogTitle>
+            <DialogDescription>Choose a folder to move this note into.</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-1 max-h-64 overflow-y-auto">
+            <button
+              onClick={() => setMoveNoteSelectedFolder(null)}
+              className={cn(
+                "flex items-center gap-2 rounded-md px-3 py-2 text-sm text-left transition-colors",
+                moveNoteSelectedFolder === null ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted/60"
+              )}
+            >
+              <FolderIcon className="size-4 shrink-0" />
+              No Folder
+            </button>
+            {folders.map(f => (
+              <button
+                key={f.id}
+                onClick={() => setMoveNoteSelectedFolder(f.id)}
+                className={cn(
+                  "flex items-center gap-2 rounded-md px-3 py-2 text-sm text-left transition-colors",
+                  moveNoteSelectedFolder === f.id ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted/60"
+                )}
+              >
+                <FolderIcon className="size-4 shrink-0" />
+                {f.name}
+              </button>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setMoveNoteDialogOpen(false)}>Cancel</Button>
+            <Button onClick={moveNote} disabled={isMovingNote} className="gap-1.5">
+              {isMovingNote && <Loader2 className="size-3.5 animate-spin" />}
+              Move
             </Button>
           </DialogFooter>
         </DialogContent>

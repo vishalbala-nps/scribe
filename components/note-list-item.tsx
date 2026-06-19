@@ -22,7 +22,7 @@ export function formatNoteTime(dateStr: string): string {
 
 export function NoteListItem({
   note, active, isDeleting, isPinning, folderName,
-  onClick, onDelete, onTogglePin,
+  onClick, onDelete, onTogglePin, onMoveRequest,
 }: {
   note: Note
   active: boolean
@@ -32,6 +32,7 @@ export function NoteListItem({
   onClick: () => void
   onDelete: () => void
   onTogglePin: () => void
+  onMoveRequest: () => void
 }) {
   const busy = isDeleting || isPinning
   return (
@@ -87,6 +88,10 @@ export function NoteListItem({
         >
           <Download className="size-4" />
           Download as .md
+        </ContextMenuItem>
+        <ContextMenuItem onSelect={onMoveRequest} className="gap-2">
+          <FolderIcon className="size-4" />
+          Move to…
         </ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem
