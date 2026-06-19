@@ -16,11 +16,11 @@ export default async function DashboardLayout() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen flex-col overflow-hidden">
+      <div className="flex md:h-screen flex-col md:overflow-hidden">
         <TitleBar showSidebarToggle>
           <UserMenu email={email} name={name} avatarUrl={avatarUrl} />
         </TitleBar>
-        <main className="relative flex-1 overflow-hidden">
+        <main className="relative h-dvh md:h-auto md:flex-1 md:overflow-hidden">
           <NewDashboard initialNotes={notes} initialFolders={folders} />
         </main>
       </div>

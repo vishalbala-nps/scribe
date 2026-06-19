@@ -293,7 +293,7 @@ export default function NewDashboard({
   }
 
   return (
-    <div className="flex h-full overflow-hidden">
+    <div className="flex md:h-full md:overflow-hidden">
       {sidebarOpen && (
         <div className="absolute inset-0 z-40 bg-black/30 md:hidden" onClick={toggleSidebar} />
       )}
@@ -376,7 +376,7 @@ export default function NewDashboard({
       {/* ── Note list panel ─────────────────────────────────────────────────── */}
       <div className={cn(
         "flex-col shrink-0 border-r border-border bg-background",
-        "w-full md:w-52",
+        "w-full h-dvh md:h-auto md:w-52",
         selected ? "hidden md:flex" : "flex",
       )}>
         {/* Header */}
