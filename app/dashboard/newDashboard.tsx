@@ -85,6 +85,10 @@ export default function NewDashboard({
   const [newFolderName, setNewFolderName] = useState("")
   const [isCreatingFolder, setIsCreatingFolder] = useState(false)
   const [expandedFolderIds, setExpandedFolderIds] = useState<Set<number>>(new Set())
+  const [renameFolderDialogOpen, setRenameFolderDialogOpen] = useState(false)
+  const [renameFolderTargetId, setRenameFolderTargetId] = useState<number | null>(null)
+  const [renameFolderName, setRenameFolderName] = useState("")
+  const [isRenamingFolder, setIsRenamingFolder] = useState(false)
   const { open: sidebarOpen, toggle: toggleSidebar } = useSidebar()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pendingSaveRef = useRef<{ id: number; patch: Partial<Note> } | null>(null)
@@ -276,6 +280,29 @@ export default function NewDashboard({
     setFolderDialogOpen(false)
   }
 
+  function openRenameFolderDialog(id: number) {
+    const folder = folders.find(f => f.id === id)
+    if (!folder) return
+    setRenameFolderTargetId(id)
+    setRenameFolderName(folder.name)
+    setRenameFolderDialogOpen(true)
+  }
+
+  async function renameFolder() {
+    if (!renameFolderName.trim() || renameFolderTargetId === null) return
+    setIsRenamingFolder(true)
+    const { error } = await supabase
+      .from("Folders")
+      .update({ name: renameFolderName.trim() })
+      .eq("id", renameFolderTargetId)
+    setIsRenamingFolder(false)
+    if (error) { toast.error("Failed to rename folder"); return }
+    setFolders(prev => prev.map(f =>
+      f.id === renameFolderTargetId ? { ...f, name: renameFolderName.trim() } : f
+    ))
+    setRenameFolderDialogOpen(false)
+  }
+
   async function deleteFolder(id: number) {
     setDeletingFolderId(id)
     const { error } = await supabase.from("Folders").delete().eq("id", id)
@@ -363,6 +390,7 @@ export default function NewDashboard({
                   onAddNote={(folderId) => { selectFolder(folderId); addNote(folderId) }}
                   onAddChild={openAddFolderDialog}
                   onDelete={setFolderDeleteConfirmId}
+                  onRename={openRenameFolderDialog}
                 />
               ))}
             </div>
@@ -554,6 +582,35 @@ export default function NewDashboard({
             >
               {isCreatingFolder && <Loader2 className="size-3.5 animate-spin" />}
               Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Rename Folder Dialog */}
+      <Dialog open={renameFolderDialogOpen} onOpenChange={setRenameFolderDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename Folder</DialogTitle>
+            <DialogDescription>Enter a new name for this folder.</DialogDescription>
+          </DialogHeader>
+          <input
+            autoFocus
+            value={renameFolderName}
+            onChange={e => setRenameFolderName(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter") renameFolder() }}
+            placeholder="Folder name"
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
+          />
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setRenameFolderDialogOpen(false)}>Cancel</Button>
+            <Button
+              onClick={renameFolder}
+              disabled={!renameFolderName.trim() || isRenamingFolder}
+              className="gap-1.5"
+            >
+              {isRenamingFolder && <Loader2 className="size-3.5 animate-spin" />}
+              Rename
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils"
 import {
   Folder as FolderIcon, FolderOpen, FolderPlus,
-  ChevronDown, Trash2, Loader2, Plus,
+  ChevronDown, Trash2, Loader2, Plus, Pencil,
 } from "lucide-react"
 import type { FolderNode } from "@/lib/types"
 import {
@@ -14,7 +14,7 @@ import {
 export function FolderTreeItem({
   node, depth, selectedFolderId, deletingFolderId, noteCounts,
   expandedFolderIds, onToggleExpand,
-  onSelect, onAddNote, onAddChild, onDelete,
+  onSelect, onAddNote, onAddChild, onDelete, onRename,
 }: {
   node: FolderNode
   depth: number
@@ -27,6 +27,7 @@ export function FolderTreeItem({
   onAddNote: (folderId: number) => void
   onAddChild: (parentId: number) => void
   onDelete: (id: number) => void
+  onRename: (id: number) => void
 }) {
   const expanded = expandedFolderIds.has(node.id)
   const isSelected = selectedFolderId === node.id
@@ -82,6 +83,10 @@ export function FolderTreeItem({
             <FolderPlus className="size-4" />
             New Folder
           </ContextMenuItem>
+          <ContextMenuItem onSelect={() => onRename(node.id)} className="gap-2">
+            <Pencil className="size-4" />
+            Rename
+          </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem
             onSelect={() => onDelete(node.id)}
@@ -110,6 +115,7 @@ export function FolderTreeItem({
           onAddNote={onAddNote}
           onAddChild={onAddChild}
           onDelete={onDelete}
+          onRename={onRename}
         />
       ))}
     </>
