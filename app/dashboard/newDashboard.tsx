@@ -29,6 +29,7 @@ import { NoteEditor } from "@/components/note-editor"
 
 const AUTO_SAVE_DELAY = 2000
 
+
 function startOfDay(d: Date) {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate())
 }
@@ -663,18 +664,21 @@ export default function NewDashboard({
               <FolderIcon className="size-4 shrink-0" />
               No Folder
             </button>
-            {folders.map(f => (
-              <button
-                key={f.id}
-                onClick={() => setMoveNoteSelectedFolder(f.id)}
-                className={cn(
-                  "flex items-center gap-2 rounded-md px-3 py-2 text-sm text-left transition-colors",
-                  moveNoteSelectedFolder === f.id ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted/60"
-                )}
-              >
-                <FolderIcon className="size-4 shrink-0" />
-                {f.name}
-              </button>
+            {tree.map(node => (
+              <FolderTreeItem
+                key={node.id}
+                node={node}
+                depth={0}
+                selectedFolderId={moveNoteSelectedFolder}
+                expandedFolderIds={expandedFolderIds}
+                onToggleExpand={id => setExpandedFolderIds(prev => {
+                  const next = new Set(prev)
+                  next.has(id) ? next.delete(id) : next.add(id)
+                  return next
+                })}
+                onSelect={setMoveNoteSelectedFolder}
+                pickerMode
+              />
             ))}
           </div>
           <DialogFooter>
