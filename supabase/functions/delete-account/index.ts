@@ -33,10 +33,16 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   )
 
-  // Delete all the user's notes first
+  // Delete all the user's notes first (Notes.folder FK cascades, so notes go before folders)
   const { error: notesError } = await adminClient.from("Notes").delete().eq("user_id", user.id)
   if (notesError) {
     return Response.json({ error: "Failed to delete notes" }, { status: 500, headers: CORS_HEADERS })
+  }
+
+  // Delete all the user's folders (parent_id FK is ON DELETE CASCADE so children go automatically)
+  const { error: foldersError } = await adminClient.from("Folders").delete().eq("user_id", user.id)
+  if (foldersError) {
+    return Response.json({ error: "Failed to delete folders" }, { status: 500, headers: CORS_HEADERS })
   }
 
   // Delete the user account
