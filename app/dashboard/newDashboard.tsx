@@ -60,11 +60,11 @@ function groupNotesByDate(notes: Note[]): { label: string; notes: Note[] }[] {
   return groups.filter(g => g.notes.length > 0)
 }
 
-function getFolderBreadcrumb(folderId: number, folders: Folder[]): string[] {
-  const path: string[] = []
+function getFolderBreadcrumb(folderId: number, folders: Folder[]): { id: number; name: string }[] {
+  const path: { id: number; name: string }[] = []
   let current: Folder | undefined = folders.find(f => f.id === folderId)
   while (current) {
-    path.unshift(current.name)
+    path.unshift({ id: current.id, name: current.name })
     const parentId = current.parent_id
     current = parentId !== null ? folders.find(f => f.id === parentId) : undefined
   }
@@ -147,7 +147,7 @@ export default function NewDashboard({
     : (folderMap.get(selectedFolderId) ?? "Notes")
 
   const breadcrumbSegments = selectedFolderId !== null
-    ? ["All Notes", ...getFolderBreadcrumb(selectedFolderId, folders)]
+    ? [{ id: null as number | null, name: "All Notes" }, ...getFolderBreadcrumb(selectedFolderId, folders)]
     : null
 
   useEffect(() => {
@@ -455,9 +455,19 @@ export default function NewDashboard({
           <div className="flex items-center justify-between mb-3">
             <div className="min-w-0">
               {breadcrumbSegments && (
-                <p className="md:hidden text-xs text-muted-foreground truncate mb-0.5">
-                  {breadcrumbSegments.slice(0, -1).join(" › ")}
-                </p>
+                <div className="md:hidden flex items-center gap-0.5 text-xs text-muted-foreground mb-0.5 min-w-0">
+                  {breadcrumbSegments.slice(0, -1).map((seg, i) => (
+                    <span key={seg.id ?? "root"} className="flex items-center gap-0.5 min-w-0">
+                      {i > 0 && <span className="shrink-0">›</span>}
+                      <button
+                        onClick={() => selectFolder(seg.id)}
+                        className="truncate hover:text-foreground transition-colors"
+                      >
+                        {seg.name}
+                      </button>
+                    </span>
+                  ))}
+                </div>
               )}
               <h2 className="text-base font-semibold truncate">{listTitle}</h2>
             </div>
